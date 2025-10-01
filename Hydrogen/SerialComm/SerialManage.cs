@@ -1,4 +1,5 @@
-﻿using Hydrogen.GlobalManagers;
+﻿using Hydrogen.Forms;
+using Hydrogen.GlobalManagers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,28 +16,53 @@ namespace Hydrogen.SerialComm {
         private SerialPort sp = new SerialPort();
         private int[] data_array_tmp = new int[2];
 
-        public void SerialConnect() {
+        public int SerialConnect() {
             sp.PortName = GlobalSerialManager.Instance.GetPortName();
             sp.BaudRate = GlobalSerialManager.Instance.GetBaudrate();
             sp.DataBits = GlobalSerialManager.Instance.GetDataBits();
             sp.Parity = Parity.None;
             sp.StopBits = StopBits.One;
 
-            sp.RtsEnable = true;
-            sp.DtrEnable = true;
+            sp.RtsEnable = false;
+            sp.DtrEnable = false;
 
             sp.DataReceived += new SerialDataReceivedEventHandler(SerialReceived);
 
             if (!sp.IsOpen) {
-                sp.Open();
-                GlobalUIManager.Instance.SetDebugStat($"Opening Port : {GlobalSerialManager.Instance.GetPortName()}");
+                try {
+                    sp.Open();
+                    GlobalUIManager.Instance.SetDebugStat($"Opening Port : {GlobalSerialManager.Instance.GetPortName()}");
+                }
+                catch (Exception ex) {
+                    GlobalUIManager.Instance.SetDebugStat($"Port : {GlobalSerialManager.Instance.GetPortName()} Serial Connnection Error - {ex.Message}");
+                    using (ErrorForm error_form = new ErrorForm()) {
+                        error_form.ShowDialog();
+                    }
+                    return 1;
+                }
             }
 
             if (sp.IsOpen) {
                 GlobalUIManager.Instance.SetDebugStat($"Port : {GlobalSerialManager.Instance.GetPortName()} Serial Connnected");
+                return 0;
             }
             else {
+                GlobalUIManager.Instance.SetDebugStat($"Port : {GlobalSerialManager.Instance.GetPortName()} Serial Connnection Error While Opening Port");
+                return 1;
+            }
+        }
 
+        public void SerialDisconnect() {
+            if (sp.IsOpen) {
+                try {
+                    sp.DataReceived -= new SerialDataReceivedEventHandler(SerialReceived);
+                    sp.Close();
+                    GlobalUIManager.Instance.SetDebugStat($"Port : {GlobalSerialManager.Instance.GetPortName()} Serial Disconnnected");
+                    // Debug.Write($"Serial Disconnected");
+                }
+                catch (Exception ex) {
+                    Debug.Write($"Serial Disconnect Error : {ex.Message}");
+                }
             }
         }
 

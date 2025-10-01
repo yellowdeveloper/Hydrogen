@@ -36,29 +36,29 @@
             this.interface_lab = new System.Windows.Forms.Label();
             this.baudrate_lab = new System.Windows.Forms.Label();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.cnt_but = new System.Windows.Forms.Button();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.debug_stat_lab = new System.Windows.Forms.Label();
             this.debug_dat_lab = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.setup_btn = new System.Windows.Forms.PictureBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.sav_btn = new System.Windows.Forms.PictureBox();
+            this.load_btn = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             this.tableLayoutPanel5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tableLayoutPanel6.SuspendLayout();
             this.panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.setup_btn)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sav_btn)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.load_btn)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -83,7 +83,7 @@
             this.tableLayoutPanel2.BackColor = System.Drawing.Color.White;
             this.tableLayoutPanel2.ColumnCount = 3;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 575F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 115F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel3, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel4, 1, 0);
@@ -177,30 +177,18 @@
             // tableLayoutPanel4
             // 
             this.tableLayoutPanel4.ColumnCount = 2;
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30.43478F));
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 69.56522F));
-            this.tableLayoutPanel4.Controls.Add(this.pictureBox4, 0, 0);
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 30F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70F));
+            this.tableLayoutPanel4.Controls.Add(this.setup_btn, 0, 0);
             this.tableLayoutPanel4.Controls.Add(this.cnt_but, 1, 0);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(576, 2);
             this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 1;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(113, 27);
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(118, 27);
             this.tableLayoutPanel4.TabIndex = 1;
-            // 
-            // pictureBox4
-            // 
-            this.pictureBox4.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.pictureBox4.Image = global::Hydrogen.Properties.Resources.Setup;
-            this.pictureBox4.Location = new System.Drawing.Point(3, 0);
-            this.pictureBox4.Margin = new System.Windows.Forms.Padding(0);
-            this.pictureBox4.Name = "pictureBox4";
-            this.pictureBox4.Size = new System.Drawing.Size(27, 27);
-            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox4.TabIndex = 1;
-            this.pictureBox4.TabStop = false;
             // 
             // cnt_but
             // 
@@ -210,7 +198,7 @@
             this.cnt_but.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(242)))), ((int)(((byte)(249)))));
             this.cnt_but.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.cnt_but.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cnt_but.Location = new System.Drawing.Point(39, 2);
+            this.cnt_but.Location = new System.Drawing.Point(42, 2);
             this.cnt_but.Margin = new System.Windows.Forms.Padding(0);
             this.cnt_but.Name = "cnt_but";
             this.cnt_but.Size = new System.Drawing.Size(68, 22);
@@ -227,13 +215,13 @@
             this.tableLayoutPanel5.Controls.Add(this.debug_stat_lab, 0, 0);
             this.tableLayoutPanel5.Controls.Add(this.debug_dat_lab, 1, 0);
             this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel5.Location = new System.Drawing.Point(691, 2);
+            this.tableLayoutPanel5.Location = new System.Drawing.Point(696, 2);
             this.tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(1, 2, 2, 2);
             this.tableLayoutPanel5.Name = "tableLayoutPanel5";
             this.tableLayoutPanel5.Padding = new System.Windows.Forms.Padding(5);
             this.tableLayoutPanel5.RowCount = 1;
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel5.Size = new System.Drawing.Size(361, 27);
+            this.tableLayoutPanel5.Size = new System.Drawing.Size(356, 27);
             this.tableLayoutPanel5.TabIndex = 2;
             // 
             // debug_stat_lab
@@ -259,22 +247,10 @@
             this.debug_dat_lab.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.debug_dat_lab.Name = "debug_dat_lab";
             this.debug_dat_lab.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.debug_dat_lab.Size = new System.Drawing.Size(253, 17);
+            this.debug_dat_lab.Size = new System.Drawing.Size(248, 17);
             this.debug_dat_lab.TabIndex = 1;
             this.debug_dat_lab.Text = " Data Recv ...";
             this.debug_dat_lab.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Image = global::Hydrogen.Properties.Resources.fydlogo;
-            this.pictureBox1.Location = new System.Drawing.Point(1138, 3);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(3, 3, 6, 0);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(114, 31);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 2;
-            this.pictureBox1.TabStop = false;
             // 
             // tableLayoutPanel6
             // 
@@ -296,7 +272,7 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.White;
-            this.panel2.Controls.Add(this.pictureBox3);
+            this.panel2.Controls.Add(this.sav_btn);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(2, 2);
             this.panel2.Margin = new System.Windows.Forms.Padding(2, 2, 1, 2);
@@ -305,21 +281,10 @@
             this.panel2.Size = new System.Drawing.Size(30, 27);
             this.panel2.TabIndex = 1;
             // 
-            // pictureBox3
-            // 
-            this.pictureBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox3.Image = global::Hydrogen.Properties.Resources.Save;
-            this.pictureBox3.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(23, 21);
-            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox3.TabIndex = 1;
-            this.pictureBox3.TabStop = false;
-            // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.White;
-            this.panel1.Controls.Add(this.pictureBox2);
+            this.panel1.Controls.Add(this.load_btn);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(34, 2);
             this.panel1.Margin = new System.Windows.Forms.Padding(1, 2, 2, 2);
@@ -328,16 +293,66 @@
             this.panel1.Size = new System.Drawing.Size(30, 27);
             this.panel1.TabIndex = 0;
             // 
-            // pictureBox2
+            // setup_btn
             // 
-            this.pictureBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox2.Image = global::Hydrogen.Properties.Resources.Load;
-            this.pictureBox2.Location = new System.Drawing.Point(4, 3);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(23, 21);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox2.TabIndex = 0;
-            this.pictureBox2.TabStop = false;
+            this.setup_btn.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.setup_btn.Image = global::Hydrogen.Properties.Resources.Setup;
+            this.setup_btn.Location = new System.Drawing.Point(4, 0);
+            this.setup_btn.Margin = new System.Windows.Forms.Padding(0);
+            this.setup_btn.Name = "setup_btn";
+            this.setup_btn.Size = new System.Drawing.Size(27, 27);
+            this.setup_btn.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.setup_btn.TabIndex = 1;
+            this.setup_btn.TabStop = false;
+            this.setup_btn.Click += new System.EventHandler(this.setup_btn_Click);
+            this.setup_btn.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_btn_MouseDown);
+            this.setup_btn.MouseLeave += new System.EventHandler(this.img_btn_MouseLeave);
+            this.setup_btn.MouseHover += new System.EventHandler(this.img_btn_MouseHover);
+            this.setup_btn.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_btn_MouseUp);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox1.Image = global::Hydrogen.Properties.Resources.fydlogo;
+            this.pictureBox1.Location = new System.Drawing.Point(1138, 3);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(3, 3, 6, 0);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(114, 31);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 2;
+            this.pictureBox1.TabStop = false;
+            // 
+            // sav_btn
+            // 
+            this.sav_btn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.sav_btn.Image = global::Hydrogen.Properties.Resources.Save;
+            this.sav_btn.Location = new System.Drawing.Point(3, 3);
+            this.sav_btn.Name = "sav_btn";
+            this.sav_btn.Size = new System.Drawing.Size(23, 21);
+            this.sav_btn.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.sav_btn.TabIndex = 1;
+            this.sav_btn.TabStop = false;
+            this.sav_btn.Click += new System.EventHandler(this.sav_btn_Click);
+            this.sav_btn.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_btn_MouseDown);
+            this.sav_btn.MouseLeave += new System.EventHandler(this.img_btn_MouseLeave);
+            this.sav_btn.MouseHover += new System.EventHandler(this.img_btn_MouseHover);
+            this.sav_btn.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_btn_MouseUp);
+            // 
+            // load_btn
+            // 
+            this.load_btn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.load_btn.Image = global::Hydrogen.Properties.Resources.Load;
+            this.load_btn.Location = new System.Drawing.Point(4, 3);
+            this.load_btn.Name = "load_btn";
+            this.load_btn.Size = new System.Drawing.Size(23, 21);
+            this.load_btn.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.load_btn.TabIndex = 0;
+            this.load_btn.TabStop = false;
+            this.load_btn.Click += new System.EventHandler(this.load_btn_Click);
+            this.load_btn.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_btn_MouseDown);
+            this.load_btn.MouseLeave += new System.EventHandler(this.img_btn_MouseLeave);
+            this.load_btn.MouseHover += new System.EventHandler(this.img_btn_MouseHover);
+            this.load_btn.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_btn_MouseUp);
             // 
             // HeaderPanel
             // 
@@ -352,15 +367,15 @@
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
             this.tableLayoutPanel4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             this.tableLayoutPanel5.ResumeLayout(false);
             this.tableLayoutPanel5.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tableLayoutPanel6.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
             this.panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.setup_btn)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.sav_btn)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.load_btn)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -383,8 +398,8 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.PictureBox pictureBox2;
-        private System.Windows.Forms.PictureBox pictureBox3;
-        private System.Windows.Forms.PictureBox pictureBox4;
+        private System.Windows.Forms.PictureBox load_btn;
+        private System.Windows.Forms.PictureBox sav_btn;
+        private System.Windows.Forms.PictureBox setup_btn;
     }
 }

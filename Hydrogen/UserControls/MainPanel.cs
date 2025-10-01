@@ -14,11 +14,15 @@ namespace Hydrogen.UserControls
     public partial class MainPanel : UserControl
     {
         decimal time = 0m;
+        private bool is_mouse_over;
         public MainPanel()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 차트 업데이트 메서드
+        /// </summary>
         public void AddValueToChart() {
             if (GlobalSerialManager.Instance.GetSerialReceivedData() != null) {
                 time += 0.1m;
@@ -41,6 +45,42 @@ namespace Hydrogen.UserControls
             chart1.ChartAreas[0].AxisX.ScaleView.Zoom(chart1.ChartAreas[0].AxisX.Minimum, chart1.ChartAreas[0].AxisX.Maximum);
         }
 
+        /// <summary>
+        /// 이미지로 구현한 버튼에 호버 및 클릭시 색상 변경 이벤트
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void img_button_MouseHover(object sender, EventArgs e) {
+            PictureBox button = sender as PictureBox;
+            button.BackColor = System.Drawing.SystemColors.ControlLight;
+            is_mouse_over = true;
+        }
+
+        private void img_button_MouseLeave(object sender, EventArgs e) {
+            PictureBox button = sender as PictureBox;
+            button.BackColor = Color.White;
+            is_mouse_over = false;
+        }
+
+        private void img_button_MouseDown(object sender, MouseEventArgs e) {
+            PictureBox button = sender as PictureBox;
+            button.BackColor = Color.Silver;
+        }
+        private void img_button_MouseUp(object sender, MouseEventArgs e) {
+            PictureBox button = sender as PictureBox;
+            if (is_mouse_over == true) {
+                button.BackColor = System.Drawing.SystemColors.ControlLight;
+            }
+            else {
+                button.BackColor = Color.White;
+            }
+        }
+
+        /// <summary>
+        /// 패널 보더 색상 변경
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tableLayoutPanel1_CellPaint(object sender, TableLayoutCellPaintEventArgs e) {
             //this.tableLayoutPanel1.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
             GlobalUIManager.Instance.DrawRectangle(Color.FromArgb(163, 199, 249), e);

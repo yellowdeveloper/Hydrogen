@@ -28,13 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series5 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.label1 = new System.Windows.Forms.Label();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.label1 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.x_scale_label = new System.Windows.Forms.Label();
             this.y_scale_label = new System.Windows.Forms.Label();
@@ -63,47 +63,33 @@
             // 
             // chart1
             // 
-            chartArea5.AxisX.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea5.AxisX.MajorGrid.Enabled = false;
-            chartArea5.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea5.AxisX.MajorTickMark.Enabled = false;
-            chartArea5.AxisX.MajorTickMark.LineColor = System.Drawing.Color.WhiteSmoke;
-            chartArea5.AxisY.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea5.AxisY.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.NotSet;
-            chartArea5.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea5.AxisY.MajorTickMark.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea5.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea5);
+            chartArea1.AxisX.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.AxisX.MajorGrid.Enabled = false;
+            chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.AxisX.MajorTickMark.Enabled = false;
+            chartArea1.AxisX.MajorTickMark.LineColor = System.Drawing.Color.WhiteSmoke;
+            chartArea1.AxisY.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.AxisY.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.NotSet;
+            chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.AxisY.MajorTickMark.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea1);
             this.chart1.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend5.Name = "Legend1";
-            this.chart1.Legends.Add(legend5);
+            legend1.Name = "Legend1";
+            this.chart1.Legends.Add(legend1);
             this.chart1.Location = new System.Drawing.Point(2, 24);
             this.chart1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 2);
             this.chart1.Name = "chart1";
-            series5.BorderWidth = 2;
-            series5.ChartArea = "ChartArea1";
-            series5.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series5.Color = System.Drawing.Color.DeepSkyBlue;
-            series5.Legend = "Legend1";
-            series5.Name = "Series1";
-            this.chart1.Series.Add(series5);
+            series1.BorderWidth = 2;
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Color = System.Drawing.Color.DeepSkyBlue;
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chart1.Series.Add(series1);
             this.chart1.Size = new System.Drawing.Size(1072, 599);
             this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label1.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(40)))), ((int)(((byte)(80)))));
-            this.label1.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.label1.Location = new System.Drawing.Point(0, 0);
-            this.label1.Margin = new System.Windows.Forms.Padding(0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(103, 20);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Result Graph";
             // 
             // tableLayoutPanel2
             // 
@@ -126,6 +112,20 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(1072, 20);
             this.tableLayoutPanel2.TabIndex = 1;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label1.Font = new System.Drawing.Font("Segoe UI Semibold", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(40)))), ((int)(((byte)(80)))));
+            this.label1.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
+            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Margin = new System.Windows.Forms.Padding(0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(103, 20);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Result Graph";
+            // 
             // pictureBox1
             // 
             this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -137,6 +137,10 @@
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 2;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
+            this.pictureBox1.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
+            this.pictureBox1.MouseHover += new System.EventHandler(this.img_button_MouseHover);
+            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
             // 
             // x_scale_label
             // 

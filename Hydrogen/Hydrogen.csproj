@@ -62,14 +62,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Forms\ErrorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ErrorForm.Designer.cs">
+      <DependentUpon>ErrorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\SetupForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SetupForm.Designer.cs">
+      <DependentUpon>SetupForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="GlobalManagers\GlobalConfigManager.cs" />
     <Compile Include="GlobalManagers\GlobalSerialManager.cs" />
     <Compile Include="GlobalManagers\GlobalUIManager.cs" />
     <Compile Include="GlobalManagers\InitializeManager.cs" />
-    <Compile Include="OverallForm.cs">
+    <Compile Include="Forms\OverallForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="OverallForm.Designer.cs">
+    <Compile Include="Forms\OverallForm.Designer.cs">
       <DependentUpon>OverallForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
@@ -92,20 +104,20 @@
     <Compile Include="UserControls\MainPanel.Designer.cs">
       <DependentUpon>MainPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="UserControls\RoundPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="UserControls\RoundPanel.Designer.cs">
-      <DependentUpon>RoundPanel.cs</DependentUpon>
-    </Compile>
     <Compile Include="UserControls\SidePanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UserControls\SidePanel.Designer.cs">
       <DependentUpon>SidePanel.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="OverallForm.resx">
+    <EmbeddedResource Include="Forms\ErrorForm.resx">
+      <DependentUpon>ErrorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\OverallForm.resx">
       <DependentUpon>OverallForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SetupForm.resx">
+      <DependentUpon>SetupForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -157,6 +169,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

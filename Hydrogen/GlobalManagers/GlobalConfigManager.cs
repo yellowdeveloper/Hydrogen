@@ -24,26 +24,63 @@ namespace Hydrogen.GlobalManagers {
             return _config_folder_path ?? string.Empty; ;
         }
 
+
         public string GetConfigFileName() {
             return _config_file_name ?? string.Empty;
         }
 
         // Log Folder Path
-        private string _default_log_folder_path = @"Log\";
+        private string _log_folder_path = @"Log\";
         private string _now_log_file_name;
-        public string GetDefaultLogFolderPath() {
-            return _default_log_folder_path ?? string.Empty;
+        private int same_file_cnt = 0;
+        public string GetLogFolderPath() {
+            return _log_folder_path ?? string.Empty;
         }
+
+        public void SetLogFolderPath(string log_folder_path) {
+            _log_folder_path = log_folder_path;
+        }
+
+        public string GetNowLogFileName() {
+            DateTime now = DateTime.Now;
+            _now_log_file_name = $"Hydrogen_Sense_{now.ToString("yyyyMMdd_HH")}_{same_file_cnt}.csv";
+            string now_log_file_path = Path.Combine(_log_folder_path, _now_log_file_name);
+            if (!File.Exists(now_log_file_path)) {
+                same_file_cnt = 0;
+                return _now_log_file_name ?? string.Empty;
+            }
+            else {
+                same_file_cnt++;
+                return GetNowLogFileName();
+            }
+        }
+
+        public void SetLogFileName(string log_file_name) {
+            _now_log_file_name = log_file_name;
+        }
+
         private Dictionary<string, Dictionary<string, string>> _config = new Dictionary<string, Dictionary<string, string>> {
             {
-                "SystemInfo", new Dictionary<string, string> {
-                    { "ModelName", "Hydrogen01" },
-                    { "PortName", "COM5" },
+                "SerialInfo", new Dictionary<string, string> {
+                    { "PortName", "COM6" },
                     { "Baudrate",  "115200" },
-                    { "DataBits", "8" }
+                    { "DataBits", "8" },
+                    { "Parity", "None" },
+                    { "StopBits", "One" },
+                    { "RTSEnable", "False" },
+                    { "DTREnable", "False" },
                 }
             }
         };
+        public void SetConfig() {
+            _config["SerialInfo"]["PortName"] = GlobalSerialManager.Instance.GetPortName();
+            _config["SerialInfo"]["Baudrate"] = GlobalSerialManager.Instance.GetBaudrate().ToString();
+            _config["SerialInfo"]["DataBits"] = GlobalSerialManager.Instance.GetDataBits().ToString();
+            _config["SerialInfo"]["Parity"] = GlobalSerialManager.Instance.GetParity().ToString();
+            _config["SerialInfo"]["StopBits"] = GlobalSerialManager.Instance.GetStopBits().ToString();
+            _config["SerialInfo"]["RTSEnable"] = GlobalSerialManager.Instance.GetRtsEnable().ToString();
+            _config["SerialInfo"]["DTREnable"] = GlobalSerialManager.Instance.GetDtrEnable().ToString();
+        }
         public Dictionary<string, Dictionary<string, string>> GetInitConfig() {
             return _config;
         }
@@ -64,7 +101,7 @@ namespace Hydrogen.GlobalManagers {
             string exeDirectory = Path.GetDirectoryName(exePath);
 
             _config_folder_path = Path.Combine(exeDirectory, _config_folder_path);
-            _default_log_folder_path = Path.Combine(exeDirectory, _default_log_folder_path);
+            _log_folder_path = Path.Combine(exeDirectory, _log_folder_path);
         }
 
         [DllImport("Kernel32")]

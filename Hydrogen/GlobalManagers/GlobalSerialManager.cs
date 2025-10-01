@@ -28,16 +28,27 @@ namespace Hydrogen.GlobalManagers
         public void SetBaudrate(int baudrate) { _baudrate = baudrate; }
         public int GetDataBits() { return _databits; }
         public void SetDataBits(int databits) { _databits = databits; }
+        public Parity GetParity() { return _parity; }
+        public void SetParity(Parity parity) { _parity = parity; }
+        public StopBits GetStopBits() { return _stop_bits; }
+        public void SetStopBits(StopBits stop_bits) { _stop_bits = stop_bits; }
+        public bool GetRtsEnable() { return _rts_enable; }
+        public void SetRtsEnable(bool rts_enable) { _rts_enable = rts_enable; }
+        public bool GetDtrEnable() { return _dtr_enable; }
+        public void SetDtrEnable(bool dtr_enable) { _dtr_enable = dtr_enable; }
 
         private string _serial_received_data;
+        private bool _is_measurement_triggered = false;
+        private bool _is_connected = false;
         private int[] receive_buffer = new int[6];
         private int _buffer_index = 0;
-        private bool _is_measurement_triggered = false;
 
         public string GetSerialReceivedData() { return _serial_received_data; }
         public void SetSerialReceivedData(string serial_received_data) { _serial_received_data = serial_received_data; }
         public bool GetIsMeasurementTriggered() { return _is_measurement_triggered; }
         public void SetIsMeasurementTriggered(bool is_measurement_triggered) { _is_measurement_triggered = is_measurement_triggered; }
+        public bool GetIsConnected() { return _is_connected; }
+        public void SetIsConnected(bool is_connected) { _is_connected = is_connected; }
         public int GetBufferIndex() { return _buffer_index; }
         public void SetBufferIndex(int buffer_index) { _buffer_index = buffer_index; }
         public void AddToReceiveBuffer(int received_data) { receive_buffer[_buffer_index] = received_data; }
