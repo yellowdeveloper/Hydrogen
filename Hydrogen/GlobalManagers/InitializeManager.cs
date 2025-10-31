@@ -11,9 +11,13 @@ using System.Xml.Serialization;
 namespace Hydrogen.GlobalManagers
 {
     internal class InitializeManager {
+
+        public static event Action OnProgramInitialized;
         public static void InitializeProgram() {
             InitializePaths();
             InitializeSettings();
+
+            OnProgramInitialized?.Invoke();
         }
         private static void CreateInitConfigFile(string configFilePath) {
             string DefaultConfig = GlobalConfigManager.Instance.ConvertConfigToString();
@@ -23,13 +27,17 @@ namespace Hydrogen.GlobalManagers
             string config_folder_path = GlobalConfigManager.Instance.GetConfigFolderPath();
             string config_file_name = GlobalConfigManager.Instance.GetConfigFileName();
             string log_folder_path = GlobalConfigManager.Instance.GetLogFolderPath();
+            string debug_log_folder_path = GlobalConfigManager.Instance.GetDebugLogFolderPath();
+            string error_log_folder_path = GlobalConfigManager.Instance.GetErrorLogFolderPath();
 
             try {
                 Directory.CreateDirectory(config_folder_path);
                 Directory.CreateDirectory(log_folder_path);
+                Directory.CreateDirectory(debug_log_folder_path);
+                Directory.CreateDirectory(error_log_folder_path);
             }
             catch {
-                Debug.WriteLine("Folder Create Error");
+                Console.WriteLine("Folder Create Error");
             }
         }
 
@@ -41,48 +49,49 @@ namespace Hydrogen.GlobalManagers
             if (!File.Exists(config_file_path)) {
                 CreateInitConfigFile(config_file_path);
             }
-            else {
-                string parity = GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "Parity", "Default");
-                string stop_bits = GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "StopBits", "Default");
 
-                GlobalSerialManager.Instance.SetPortName(GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "PortName", "Default"));
-                GlobalSerialManager.Instance.SetBaudrate(Int32.Parse(GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "Baudrate", "Default")));
-                GlobalSerialManager.Instance.SetDataBits(Int32.Parse(GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "DataBits", "Default")));
-                GlobalSerialManager.Instance.SetRtsEnable(Boolean.Parse(GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "RTSEnable", "Default")));
-                GlobalSerialManager.Instance.SetDtrEnable(Boolean.Parse(GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "DTREnable", "Default")));
+            string parity = GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "Parity", "Default");
+            string stop_bits = GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "StopBits", "Default");
 
-                switch (parity) {
-                    case "None":
-                        GlobalSerialManager.Instance.SetParity(System.IO.Ports.Parity.None);
-                        break;
-                    case "Odd":
-                        GlobalSerialManager.Instance.SetParity(System.IO.Ports.Parity.Odd);
-                        break;
-                    case "Even":
-                        GlobalSerialManager.Instance.SetParity(System.IO.Ports.Parity.Even);
-                        break;
-                    case "Mark":
-                        GlobalSerialManager.Instance.SetParity(System.IO.Ports.Parity.Mark);
-                        break;
-                    case "Space":
-                        GlobalSerialManager.Instance.SetParity(System.IO.Ports.Parity.Space);
-                        break;
-                }
+            GlobalSerialManager.Instance.SetPortName(GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "PortName", "Default"));
+            GlobalSerialManager.Instance.SetBaudrate(Int32.Parse(GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "Baudrate", "Default")));
+            GlobalSerialManager.Instance.SetDataBits(Int32.Parse(GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "DataBits", "Default")));
+            GlobalSerialManager.Instance.SetRtsEnable(Boolean.Parse(GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "RTSEnable", "Default")));
+            GlobalSerialManager.Instance.SetDtrEnable(Boolean.Parse(GlobalConfigManager.Instance.ReadConfig(config_file_path, "SerialInfo", "DTREnable", "Default")));
 
-                switch (stop_bits) {
-                    case "None":
-                        GlobalSerialManager.Instance.SetStopBits(System.IO.Ports.StopBits.None);
-                        break;
-                    case "One":
-                        GlobalSerialManager.Instance.SetStopBits(System.IO.Ports.StopBits.One);
-                        break;
-                    case "Two":
-                        GlobalSerialManager.Instance.SetStopBits(System.IO.Ports.StopBits.Two);
-                        break;
-                    case "OnePointFive":
-                        GlobalSerialManager.Instance.SetStopBits(System.IO.Ports.StopBits.OnePointFive);
-                        break;
-                }
+            GlobalConfigManager.Instance.CmdSectionInit(config_file_path);
+
+            switch (parity) {
+                case "None":
+                    GlobalSerialManager.Instance.SetParity(System.IO.Ports.Parity.None);
+                    break;
+                case "Odd":
+                    GlobalSerialManager.Instance.SetParity(System.IO.Ports.Parity.Odd);
+                    break;
+                case "Even":
+                    GlobalSerialManager.Instance.SetParity(System.IO.Ports.Parity.Even);
+                    break;
+                case "Mark":
+                    GlobalSerialManager.Instance.SetParity(System.IO.Ports.Parity.Mark);
+                    break;
+                case "Space":
+                    GlobalSerialManager.Instance.SetParity(System.IO.Ports.Parity.Space);
+                    break;
+            }
+
+            switch (stop_bits) {
+                case "None":
+                    GlobalSerialManager.Instance.SetStopBits(System.IO.Ports.StopBits.None);
+                    break;
+                case "One":
+                    GlobalSerialManager.Instance.SetStopBits(System.IO.Ports.StopBits.One);
+                    break;
+                case "Two":
+                    GlobalSerialManager.Instance.SetStopBits(System.IO.Ports.StopBits.Two);
+                    break;
+                case "OnePointFive":
+                    GlobalSerialManager.Instance.SetStopBits(System.IO.Ports.StopBits.OnePointFive);
+                    break;
             }
         }
     }

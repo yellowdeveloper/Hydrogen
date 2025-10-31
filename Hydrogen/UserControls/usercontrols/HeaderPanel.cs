@@ -86,8 +86,8 @@ namespace Hydrogen.UserControls {
         /// <param name="e"></param>
         private void sav_btn_Click(object sender, EventArgs e) {
             GlobalConfigManager.Instance.SetConfig();
-            //string NowConfig = GlobalConfigManager.Instance.ConvertConfigToString();
-            //File.WriteAllText(Path.Combine(GlobalConfigManager.Instance.GetConfigFolderPath(), GlobalConfigManager.Instance.GetConfigFileName()), NowConfig);
+            string NowConfig = GlobalConfigManager.Instance.ConvertConfigToString();
+            File.WriteAllText(Path.Combine(GlobalConfigManager.Instance.GetConfigFolderPath(), GlobalConfigManager.Instance.GetConfigFileName()), NowConfig);
         }
 
         private void load_btn_Click(object sender, EventArgs e) {

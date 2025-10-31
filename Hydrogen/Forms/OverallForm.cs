@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Hydrogen.UserControls;
 using Hydrogen.SerialComm;
 using Hydrogen.GlobalManagers;
+using System.Diagnostics;
 
 namespace Hydrogen {
     public partial class OverallForm : Form {
@@ -18,13 +19,11 @@ namespace Hydrogen {
         MainPanel main_panel = new MainPanel();
         SidePanel side_panel = new SidePanel();
         HeaderPanel header_panel = new HeaderPanel();
-        SerialManage serial_manage = new SerialManage();
+        private readonly SerialManage serial_manage = new SerialManage();
 
         public OverallForm() {
             InitializeComponent();
             InitializePanels();
-
-            //serial_manage.SerialConnect();
 
             header_panel.SetInterfaceLabelText($"Interface   :   {GlobalSerialManager.Instance.GetPortName()}");
             header_panel.SetBaudrateLabelText($"Baudrate   :   {GlobalSerialManager.Instance.GetBaudrate()}");
@@ -37,20 +36,19 @@ namespace Hydrogen {
 
             this.main_cont.Controls.Add(this.main_panel);
             this.main_panel.Dock = DockStyle.Fill;
-            //this.main_panel.BorderStyle = BorderStyle.FixedSingle;
 
             this.side_cont.Controls.Add(this.side_panel);
             this.side_panel.Dock = DockStyle.Fill;
-            //this.side_panel.BorderStyle = BorderStyle.FixedSingle;
+            this.side_panel.InitializeSerialManager(this.serial_manage);
 
             this.header_cont.Controls.Add(this.header_panel);
             this.header_panel.Dock = DockStyle.Fill;
-            //this.header_panel.BorderStyle = BorderStyle.FixedSingle;
+            this.header_panel.InitializeSerialManager(this.serial_manage);
         }
 
         private void timer1_Tick(object sender, EventArgs e) {
             header_panel.SetDebugDataText($"{GlobalUIManager.Instance.GetDebugStat()}");
-            this.main_panel.AddValueToChart();
+            this.main_panel.AddValueToChart("default");
         }
 
         private void tableLayoutPanel4_MouseDown(object sender, MouseEventArgs e) {

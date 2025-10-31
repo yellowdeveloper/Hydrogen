@@ -122,15 +122,24 @@ namespace Hydrogen.Forms
         private void port_text_box_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) {
                 if (port_text_box.Text != "") {
-                    if (port_text_box.Text.Substring(0, 3) == "COM") {
-                        GlobalSerialManager.Instance.SetPortName(port_text_box.Text);
-                        port_text_box.ForeColor = SystemColors.ControlDark;
+                    if (port_text_box.TextLength < 3)
+                    {
+                        GlobalUIManager.Instance.SetDebugStat($"Serial Setup Error - Invalid Port Name {port_text_box.Text}");
+                        using (ErrorForm error_form = new ErrorForm())
+                        {
+                            error_form.ShowDialog();
+                        }
                     }
-                    else {
+                    else if (port_text_box.Text.Substring(0, 3) != "COM") {
                         GlobalUIManager.Instance.SetDebugStat($"Serial Setup Error - Invalid Port Name {port_text_box.Text}");
                         using (ErrorForm error_form = new ErrorForm()) {
                             error_form.ShowDialog();
+
                         }
+                    }
+                    else {
+                        GlobalSerialManager.Instance.SetPortName(port_text_box.Text);
+                        port_text_box.ForeColor = SystemColors.ControlDark;
                     }
                 }
                 else {

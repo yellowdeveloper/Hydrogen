@@ -48,20 +48,20 @@
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
+            this.play_button = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.tableLayoutPanel9 = new System.Windows.Forms.TableLayoutPanel();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.log_file_path_text_box = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.log_file_name_text_box = new System.Windows.Forms.TextBox();
             this.auto_stop_freq = new System.Windows.Forms.Label();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.play_button = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.CCName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Data = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SendCtrlBtn = new System.Windows.Forms.DataGridViewButtonColumn();
@@ -74,11 +74,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tableLayoutPanel4.SuspendLayout();
             this.tableLayoutPanel7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.play_button)).BeginInit();
             this.tableLayoutPanel8.SuspendLayout();
             this.tableLayoutPanel9.SuspendLayout();
-            this.tableLayoutPanel10.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.play_button)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.tableLayoutPanel10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
@@ -177,7 +177,7 @@
             this.dataGridView2.Location = new System.Drawing.Point(2, 25);
             this.dataGridView2.Margin = new System.Windows.Forms.Padding(2);
             this.dataGridView2.Name = "dataGridView2";
-            this.dataGridView2.RowHeadersWidth = 30;
+            this.dataGridView2.RowHeadersVisible = false;
             this.dataGridView2.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dataGridView2.RowTemplate.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dataGridView2.Size = new System.Drawing.Size(266, 161);
@@ -280,7 +280,7 @@
             this.dataGridView1.Location = new System.Drawing.Point(2, 25);
             this.dataGridView1.Margin = new System.Windows.Forms.Padding(2);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowHeadersWidth = 30;
+            this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             this.dataGridView1.Size = new System.Drawing.Size(266, 259);
             this.dataGridView1.TabIndex = 0;
@@ -334,6 +334,26 @@
             this.label3.Size = new System.Drawing.Size(71, 23);
             this.label3.TabIndex = 0;
             this.label3.Text = "Logging";
+            // 
+            // play_button
+            // 
+            this.play_button.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.play_button.Image = global::Hydrogen.Properties.Resources.play;
+            this.play_button.Location = new System.Drawing.Point(71, 5);
+            this.play_button.Margin = new System.Windows.Forms.Padding(0, 4, 14, 4);
+            this.play_button.MaximumSize = new System.Drawing.Size(14, 14);
+            this.play_button.MinimumSize = new System.Drawing.Size(14, 14);
+            this.play_button.Name = "play_button";
+            this.play_button.Padding = new System.Windows.Forms.Padding(2);
+            this.play_button.Size = new System.Drawing.Size(14, 14);
+            this.play_button.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.play_button.TabIndex = 1;
+            this.play_button.TabStop = false;
+            this.play_button.Click += new System.EventHandler(this.play_button_Click);
+            this.play_button.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
+            this.play_button.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
+            this.play_button.MouseHover += new System.EventHandler(this.img_button_MouseHover);
+            this.play_button.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
             // 
             // tableLayoutPanel8
             // 
@@ -412,6 +432,24 @@
             this.tableLayoutPanel9.Size = new System.Drawing.Size(182, 29);
             this.tableLayoutPanel9.TabIndex = 3;
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox1.Image = global::Hydrogen.Properties.Resources.Setup;
+            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
+            this.pictureBox1.MinimumSize = new System.Drawing.Size(25, 25);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(31, 29);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 0;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
+            this.pictureBox1.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
+            this.pictureBox1.MouseHover += new System.EventHandler(this.img_button_MouseHover);
+            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
+            // 
             // log_file_path_text_box
             // 
             this.log_file_path_text_box.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -438,6 +476,24 @@
             this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel10.Size = new System.Drawing.Size(182, 29);
             this.tableLayoutPanel10.TabIndex = 4;
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox2.Image = global::Hydrogen.Properties.Resources.Setup;
+            this.pictureBox2.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox2.Margin = new System.Windows.Forms.Padding(0);
+            this.pictureBox2.MinimumSize = new System.Drawing.Size(25, 25);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(30, 29);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox2.TabIndex = 0;
+            this.pictureBox2.TabStop = false;
+            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
+            this.pictureBox2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
+            this.pictureBox2.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
+            this.pictureBox2.MouseHover += new System.EventHandler(this.img_button_MouseHover);
+            this.pictureBox2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
             // 
             // log_file_name_text_box
             // 
@@ -489,62 +545,6 @@
             this.label6.Text = "100";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // play_button
-            // 
-            this.play_button.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.play_button.Image = global::Hydrogen.Properties.Resources.play;
-            this.play_button.Location = new System.Drawing.Point(71, 5);
-            this.play_button.Margin = new System.Windows.Forms.Padding(0, 4, 14, 4);
-            this.play_button.MaximumSize = new System.Drawing.Size(14, 14);
-            this.play_button.MinimumSize = new System.Drawing.Size(14, 14);
-            this.play_button.Name = "play_button";
-            this.play_button.Padding = new System.Windows.Forms.Padding(2);
-            this.play_button.Size = new System.Drawing.Size(14, 14);
-            this.play_button.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.play_button.TabIndex = 1;
-            this.play_button.TabStop = false;
-            this.play_button.Click += new System.EventHandler(this.play_button_Click);
-            this.play_button.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
-            this.play_button.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
-            this.play_button.MouseHover += new System.EventHandler(this.img_button_MouseHover);
-            this.play_button.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Image = global::Hydrogen.Properties.Resources.Setup;
-            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
-            this.pictureBox1.MinimumSize = new System.Drawing.Size(25, 25);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(31, 29);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
-            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
-            this.pictureBox1.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
-            this.pictureBox1.MouseHover += new System.EventHandler(this.img_button_MouseHover);
-            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox2.Image = global::Hydrogen.Properties.Resources.Setup;
-            this.pictureBox2.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox2.Margin = new System.Windows.Forms.Padding(0);
-            this.pictureBox2.MinimumSize = new System.Drawing.Size(25, 25);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(30, 29);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox2.TabIndex = 0;
-            this.pictureBox2.TabStop = false;
-            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
-            this.pictureBox2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
-            this.pictureBox2.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
-            this.pictureBox2.MouseHover += new System.EventHandler(this.img_button_MouseHover);
-            this.pictureBox2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
-            // 
             // CCName
             // 
             this.CCName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -564,7 +564,7 @@
             dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding(10, 2, 10, 2);
             this.SendCtrlBtn.DefaultCellStyle = dataGridViewCellStyle4;
-            this.SendCtrlBtn.FillWeight = 25F;
+            this.SendCtrlBtn.FillWeight = 22F;
             this.SendCtrlBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.SendCtrlBtn.HeaderText = "Send";
             this.SendCtrlBtn.Name = "SendCtrlBtn";
@@ -589,14 +589,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.tableLayoutPanel4.ResumeLayout(false);
             this.tableLayoutPanel7.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.play_button)).EndInit();
             this.tableLayoutPanel8.ResumeLayout(false);
             this.tableLayoutPanel8.PerformLayout();
             this.tableLayoutPanel9.ResumeLayout(false);
             this.tableLayoutPanel9.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tableLayoutPanel10.ResumeLayout(false);
             this.tableLayoutPanel10.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.play_button)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.ResumeLayout(false);
 

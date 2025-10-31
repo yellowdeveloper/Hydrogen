@@ -6,29 +6,26 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Hydrogen.UserControls {
     public partial class SidePanel : UserControl {
 
         private bool is_mouse_over;
         private SerialManage _serial_manage;
+        private bool initialized = false;
         public SidePanel() {
             InitializeComponent();
             log_file_name_text_box.Text = GlobalConfigManager.Instance.GetNowLogFileName();
             log_file_path_text_box.Text = GlobalConfigManager.Instance.GetLogFolderPath();
 
             InitializeManager.OnProgramInitialized += InitializeCommands;
-            GlobalConfigManager.OnOptionSaved += SaveCommands;
 
             this.Disposed += (s, e) => {
                 InitializeManager.OnProgramInitialized -= InitializeCommands;
-                GlobalConfigManager.OnOptionSaved -= SaveCommands;
             };
         }
         public void InitializeSerialManager(SerialManage serial_manage) {
@@ -36,65 +33,25 @@ namespace Hydrogen.UserControls {
         }
 
         private void InitializeCommands() {
+            if (initialized == true) return;
             Dictionary<string, string> ctrl_cmd = GlobalConfigManager.Instance.GetCtrlCmdSection();
             Dictionary<string, string> data_cmd = GlobalConfigManager.Instance.GetDataCmdSection();
 
-            dataGridView1.Rows.Clear();
-            dataGridView2.Rows.Clear();
-
-            if (ctrl_cmd != null) {
-                foreach (var cmd in ctrl_cmd) {
-                    dataGridView1.Rows.Add(cmd.Key, cmd.Value);
-                }
+            foreach (var cmd in ctrl_cmd) {
+                dataGridView1.Rows.Add(cmd.Key, cmd.Value);
             }
 
-            if (data_cmd == null) return;
             foreach (var cmd in data_cmd) {
                 dataGridView2.Rows.Add(cmd.Key, cmd.Value);
             }
-        }
-
-        private void SaveCommands() {
-            StringBuilder sb = new StringBuilder();
-
-            string serialConfig = GlobalConfigManager.Instance.ConvertConfigToString();
-            sb.AppendLine(serialConfig);
-
-            sb.AppendLine($"[DataCommandInfo]");
-            foreach (DataGridViewRow row in dataGridView2.Rows) {
-                string cc_name = row.Cells[0].Value?.ToString() ?? null;
-                string cc_value = row.Cells[1].Value?.ToString() ?? null;
-                if (cc_name != null && cc_value != null) sb.AppendLine($"{cc_name}={cc_value}");
-            }
-            sb.AppendLine();
-
-            sb.AppendLine($"[CtrlCommandInfo]");
-            foreach (DataGridViewRow row in dataGridView1.Rows) {
-                string dc_name = row.Cells[0].Value?.ToString() ?? null;
-                string dc_value = row.Cells[1].Value?.ToString() ?? null;
-                if (dc_name != null && dc_value != null) sb.AppendLine($"{dc_name}={dc_value}");
-            }
-
-            string NowCmdConfig = sb.ToString();
-            Console.WriteLine($"\n{NowCmdConfig}\n");
-            File.WriteAllText(Path.Combine(GlobalConfigManager.Instance.GetConfigFolderPath(), GlobalConfigManager.Instance.GetConfigFileName()), NowCmdConfig);
+            initialized = true;
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) {
             if (e.ColumnIndex == 2) {
-                string cmd_str = String.Empty;
-                try {
-                    cmd_str = dataGridView1[1, e.RowIndex].Value.ToString();
-
-                    byte cmd = Convert.ToByte(cmd_str, 16);
-                    _serial_manage.SerialSendCmd(cmd);
-                }
-                catch (Exception ex) {
-                    GlobalLogManager.Instance.ConsoleLog("WARN", $"Error while Sending Command :: {ex}");
-                    GlobalLogManager.Instance.AddLogToFile("WARN", $"Error while Sending Command :: {ex}");
-                }
-                
+                _serial_manage.SerialSendCmd(0x1A);
             }
+            
         }
 
         private void play_button_Click(object sender, EventArgs e) {
