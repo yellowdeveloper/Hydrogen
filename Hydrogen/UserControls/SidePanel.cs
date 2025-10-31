@@ -80,6 +80,7 @@ namespace Hydrogen.UserControls {
             File.WriteAllText(Path.Combine(GlobalConfigManager.Instance.GetConfigFolderPath(), GlobalConfigManager.Instance.GetConfigFileName()), NowCmdConfig);
         }
 
+        // Send Command from Control Command Table
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) {
             if (e.ColumnIndex == 2) {
                 string cmd_str = String.Empty;
