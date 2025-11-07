@@ -1,16 +1,17 @@
-﻿using System;
+﻿using Hydrogen.GlobalManagers;
+using Hydrogen.SerialComm;
+using Hydrogen.UserControls;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Hydrogen.UserControls;
-using Hydrogen.SerialComm;
-using Hydrogen.GlobalManagers;
-using System.Diagnostics;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Hydrogen {
     public partial class OverallForm : Form {
@@ -48,7 +49,20 @@ namespace Hydrogen {
 
         private void timer1_Tick(object sender, EventArgs e) {
             header_panel.SetDebugDataText($"{GlobalUIManager.Instance.GetDebugStat()}");
-            this.main_panel.AddValueToChart("default");
+            string[] series;
+
+            if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.LPF)
+                series = new string[] { "Raw", "LPF" };
+            else if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.AVG)
+                series = new string[] { "Raw", "LPF", "AVG" };
+            else series = new string[] { "Raw" };
+            try {
+                this.main_panel.UpdateChart(series);
+            }
+            catch (Exception ex) {
+                GlobalLogManager.Instance.ConsoleLog("ERROR", $"Error Occured while Updating Chart{ex}");
+            }
+            
         }
 
         private void tableLayoutPanel4_MouseDown(object sender, MouseEventArgs e) {

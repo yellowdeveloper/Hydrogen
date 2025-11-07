@@ -29,10 +29,11 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
@@ -41,30 +42,33 @@
             this.DCName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CmdValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SensorData = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Apply = new System.Windows.Forms.DataGridViewButtonColumn();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.CCName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Cmd = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.SendCtrlBtn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
             this.label3 = new System.Windows.Forms.Label();
+            this.play_button = new System.Windows.Forms.PictureBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.hydrogen_percent_text_box = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.tableLayoutPanel9 = new System.Windows.Forms.TableLayoutPanel();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.log_file_path_text_box = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.log_file_name_text_box = new System.Windows.Forms.TextBox();
             this.auto_stop_freq = new System.Windows.Forms.Label();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.play_button = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.CCName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Data = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.SendCtrlBtn = new System.Windows.Forms.DataGridViewButtonColumn();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel6.SuspendLayout();
@@ -74,11 +78,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tableLayoutPanel4.SuspendLayout();
             this.tableLayoutPanel7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.play_button)).BeginInit();
             this.tableLayoutPanel8.SuspendLayout();
             this.tableLayoutPanel9.SuspendLayout();
-            this.tableLayoutPanel10.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.play_button)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.tableLayoutPanel10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
@@ -164,15 +168,16 @@
             this.dataGridView2.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.DCName,
             this.CmdValue,
-            this.SensorData});
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView2.DefaultCellStyle = dataGridViewCellStyle2;
+            this.SensorData,
+            this.Apply});
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView2.DefaultCellStyle = dataGridViewCellStyle3;
             this.dataGridView2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView2.Location = new System.Drawing.Point(2, 25);
             this.dataGridView2.Margin = new System.Windows.Forms.Padding(2);
@@ -182,26 +187,40 @@
             this.dataGridView2.RowTemplate.DefaultCellStyle.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dataGridView2.Size = new System.Drawing.Size(266, 161);
             this.dataGridView2.TabIndex = 0;
+            this.dataGridView2.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView2_CellContentClick);
             // 
             // DCName
             // 
             this.DCName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.DCName.FillWeight = 50F;
+            this.DCName.FillWeight = 60F;
             this.DCName.HeaderText = "Name";
             this.DCName.Name = "DCName";
             // 
             // CmdValue
             // 
             this.CmdValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.CmdValue.FillWeight = 60F;
+            this.CmdValue.FillWeight = 50F;
             this.CmdValue.HeaderText = "Cmd Value";
             this.CmdValue.Name = "CmdValue";
             // 
             // SensorData
             // 
             this.SensorData.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.SensorData.HeaderText = "Sensor Data";
+            this.SensorData.HeaderText = "Data";
             this.SensorData.Name = "SensorData";
+            // 
+            // Apply
+            // 
+            this.Apply.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(10, 2, 10, 2);
+            this.Apply.DefaultCellStyle = dataGridViewCellStyle2;
+            this.Apply.FillWeight = 38F;
+            this.Apply.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Apply.HeaderText = "Apply";
+            this.Apply.Name = "Apply";
+            this.Apply.Text = "A";
+            this.Apply.UseColumnTextForButtonValue = true;
             // 
             // tableLayoutPanel3
             // 
@@ -255,27 +274,27 @@
             // 
             this.dataGridView1.AllowUserToResizeRows = false;
             this.dataGridView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.CCName,
-            this.Data,
+            this.Cmd,
             this.SendCtrlBtn});
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView1.DefaultCellStyle = dataGridViewCellStyle6;
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(2, 25);
             this.dataGridView1.Margin = new System.Windows.Forms.Padding(2);
@@ -285,6 +304,33 @@
             this.dataGridView1.Size = new System.Drawing.Size(266, 259);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            // 
+            // CCName
+            // 
+            this.CCName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.CCName.FillWeight = 40F;
+            this.CCName.HeaderText = "Name";
+            this.CCName.Name = "CCName";
+            // 
+            // Cmd
+            // 
+            this.Cmd.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Cmd.HeaderText = "Cmd";
+            this.Cmd.Name = "Cmd";
+            // 
+            // SendCtrlBtn
+            // 
+            this.SendCtrlBtn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle5.Padding = new System.Windows.Forms.Padding(10, 2, 10, 2);
+            this.SendCtrlBtn.DefaultCellStyle = dataGridViewCellStyle5;
+            this.SendCtrlBtn.FillWeight = 25F;
+            this.SendCtrlBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.SendCtrlBtn.HeaderText = "Send";
+            this.SendCtrlBtn.Name = "SendCtrlBtn";
+            this.SendCtrlBtn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.SendCtrlBtn.Text = "S";
+            this.SendCtrlBtn.UseColumnTextForButtonValue = true;
             // 
             // tableLayoutPanel4
             // 
@@ -306,12 +352,15 @@
             // 
             // tableLayoutPanel7
             // 
-            this.tableLayoutPanel7.ColumnCount = 3;
-            this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 26.69173F));
-            this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 66.16541F));
-            this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 6.766917F));
+            this.tableLayoutPanel7.ColumnCount = 4;
+            this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 27.06767F));
+            this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 5.639098F));
+            this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 39.09774F));
+            this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 28.94737F));
             this.tableLayoutPanel7.Controls.Add(this.label3, 0, 0);
             this.tableLayoutPanel7.Controls.Add(this.play_button, 1, 0);
+            this.tableLayoutPanel7.Controls.Add(this.label7, 2, 0);
+            this.tableLayoutPanel7.Controls.Add(this.hydrogen_percent_text_box, 3, 0);
             this.tableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel7.Location = new System.Drawing.Point(2, 2);
             this.tableLayoutPanel7.Margin = new System.Windows.Forms.Padding(2, 2, 2, 0);
@@ -334,6 +383,51 @@
             this.label3.Size = new System.Drawing.Size(71, 23);
             this.label3.TabIndex = 0;
             this.label3.Text = "Logging";
+            // 
+            // play_button
+            // 
+            this.play_button.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.play_button.Image = global::Hydrogen.Properties.Resources.play;
+            this.play_button.Location = new System.Drawing.Point(71, 5);
+            this.play_button.Margin = new System.Windows.Forms.Padding(0, 4, 14, 4);
+            this.play_button.MaximumSize = new System.Drawing.Size(14, 14);
+            this.play_button.MinimumSize = new System.Drawing.Size(14, 14);
+            this.play_button.Name = "play_button";
+            this.play_button.Padding = new System.Windows.Forms.Padding(2);
+            this.play_button.Size = new System.Drawing.Size(14, 14);
+            this.play_button.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.play_button.TabIndex = 1;
+            this.play_button.TabStop = false;
+            this.play_button.Click += new System.EventHandler(this.play_button_Click);
+            this.play_button.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
+            this.play_button.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
+            this.play_button.MouseHover += new System.EventHandler(this.img_button_MouseHover);
+            this.play_button.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
+            // 
+            // label7
+            // 
+            this.label7.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold);
+            this.label7.Location = new System.Drawing.Point(85, 5);
+            this.label7.Margin = new System.Windows.Forms.Padding(0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(103, 15);
+            this.label7.TabIndex = 2;
+            this.label7.Text = "Hydrogen Percent";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // hydrogen_percent_text_box
+            // 
+            this.hydrogen_percent_text_box.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hydrogen_percent_text_box.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.hydrogen_percent_text_box.Location = new System.Drawing.Point(191, 3);
+            this.hydrogen_percent_text_box.Name = "hydrogen_percent_text_box";
+            this.hydrogen_percent_text_box.Size = new System.Drawing.Size(72, 21);
+            this.hydrogen_percent_text_box.TabIndex = 3;
+            this.hydrogen_percent_text_box.Click += new System.EventHandler(this.hydrogen_percent_text_box_Click);
+            this.hydrogen_percent_text_box.KeyDown += new System.Windows.Forms.KeyEventHandler(this.hydrogen_percent_text_box_KeyDown);
+            this.hydrogen_percent_text_box.Leave += new System.EventHandler(this.hydrogen_percent_text_box_Leave);
             // 
             // tableLayoutPanel8
             // 
@@ -412,6 +506,24 @@
             this.tableLayoutPanel9.Size = new System.Drawing.Size(182, 29);
             this.tableLayoutPanel9.TabIndex = 3;
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox1.Image = global::Hydrogen.Properties.Resources.Setup;
+            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
+            this.pictureBox1.MinimumSize = new System.Drawing.Size(25, 25);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(31, 29);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 0;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
+            this.pictureBox1.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
+            this.pictureBox1.MouseHover += new System.EventHandler(this.img_button_MouseHover);
+            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
+            // 
             // log_file_path_text_box
             // 
             this.log_file_path_text_box.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -438,6 +550,24 @@
             this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel10.Size = new System.Drawing.Size(182, 29);
             this.tableLayoutPanel10.TabIndex = 4;
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox2.Image = global::Hydrogen.Properties.Resources.Setup;
+            this.pictureBox2.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox2.Margin = new System.Windows.Forms.Padding(0);
+            this.pictureBox2.MinimumSize = new System.Drawing.Size(25, 25);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(30, 29);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox2.TabIndex = 0;
+            this.pictureBox2.TabStop = false;
+            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
+            this.pictureBox2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
+            this.pictureBox2.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
+            this.pictureBox2.MouseHover += new System.EventHandler(this.img_button_MouseHover);
+            this.pictureBox2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
             // 
             // log_file_name_text_box
             // 
@@ -489,89 +619,6 @@
             this.label6.Text = "100";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // play_button
-            // 
-            this.play_button.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.play_button.Image = global::Hydrogen.Properties.Resources.play;
-            this.play_button.Location = new System.Drawing.Point(71, 5);
-            this.play_button.Margin = new System.Windows.Forms.Padding(0, 4, 14, 4);
-            this.play_button.MaximumSize = new System.Drawing.Size(14, 14);
-            this.play_button.MinimumSize = new System.Drawing.Size(14, 14);
-            this.play_button.Name = "play_button";
-            this.play_button.Padding = new System.Windows.Forms.Padding(2);
-            this.play_button.Size = new System.Drawing.Size(14, 14);
-            this.play_button.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.play_button.TabIndex = 1;
-            this.play_button.TabStop = false;
-            this.play_button.Click += new System.EventHandler(this.play_button_Click);
-            this.play_button.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
-            this.play_button.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
-            this.play_button.MouseHover += new System.EventHandler(this.img_button_MouseHover);
-            this.play_button.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Image = global::Hydrogen.Properties.Resources.Setup;
-            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
-            this.pictureBox1.MinimumSize = new System.Drawing.Size(25, 25);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(31, 29);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
-            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
-            this.pictureBox1.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
-            this.pictureBox1.MouseHover += new System.EventHandler(this.img_button_MouseHover);
-            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox2.Image = global::Hydrogen.Properties.Resources.Setup;
-            this.pictureBox2.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox2.Margin = new System.Windows.Forms.Padding(0);
-            this.pictureBox2.MinimumSize = new System.Drawing.Size(25, 25);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(30, 29);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox2.TabIndex = 0;
-            this.pictureBox2.TabStop = false;
-            this.pictureBox2.Click += new System.EventHandler(this.pictureBox2_Click);
-            this.pictureBox2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
-            this.pictureBox2.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
-            this.pictureBox2.MouseHover += new System.EventHandler(this.img_button_MouseHover);
-            this.pictureBox2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
-            // 
-            // CCName
-            // 
-            this.CCName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.CCName.FillWeight = 40F;
-            this.CCName.HeaderText = "Name";
-            this.CCName.Name = "CCName";
-            // 
-            // Data
-            // 
-            this.Data.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Data.HeaderText = "Data";
-            this.Data.Name = "Data";
-            // 
-            // SendCtrlBtn
-            // 
-            this.SendCtrlBtn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding(10, 2, 10, 2);
-            this.SendCtrlBtn.DefaultCellStyle = dataGridViewCellStyle4;
-            this.SendCtrlBtn.FillWeight = 25F;
-            this.SendCtrlBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.SendCtrlBtn.HeaderText = "Send";
-            this.SendCtrlBtn.Name = "SendCtrlBtn";
-            this.SendCtrlBtn.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.SendCtrlBtn.Text = "S";
-            this.SendCtrlBtn.UseColumnTextForButtonValue = true;
-            // 
             // SidePanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -589,14 +636,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.tableLayoutPanel4.ResumeLayout(false);
             this.tableLayoutPanel7.ResumeLayout(false);
+            this.tableLayoutPanel7.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.play_button)).EndInit();
             this.tableLayoutPanel8.ResumeLayout(false);
             this.tableLayoutPanel8.PerformLayout();
             this.tableLayoutPanel9.ResumeLayout(false);
             this.tableLayoutPanel9.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tableLayoutPanel10.ResumeLayout(false);
             this.tableLayoutPanel10.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.play_button)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.ResumeLayout(false);
 
@@ -630,11 +678,14 @@
         private System.Windows.Forms.TextBox log_file_path_text_box;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.DataGridView dataGridView2;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox hydrogen_percent_text_box;
         private System.Windows.Forms.DataGridViewTextBoxColumn DCName;
         private System.Windows.Forms.DataGridViewTextBoxColumn CmdValue;
         private System.Windows.Forms.DataGridViewTextBoxColumn SensorData;
+        private System.Windows.Forms.DataGridViewButtonColumn Apply;
         private System.Windows.Forms.DataGridViewTextBoxColumn CCName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Data;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Cmd;
         private System.Windows.Forms.DataGridViewButtonColumn SendCtrlBtn;
     }
 }

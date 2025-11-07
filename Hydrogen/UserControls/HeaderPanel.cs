@@ -94,6 +94,8 @@ namespace Hydrogen.UserControls {
             InitializeManager.InitializeProgram();
             this.interface_lab.Text = $"Interface   :   {GlobalSerialManager.Instance.GetPortName()}";
             this.baudrate_lab.Text = $"Baudrate   :   {GlobalSerialManager.Instance.GetBaudrate().ToString()}";
+
+            GlobalSerialManager.Instance.SetFilter(GlobalSerialManager.Filter.Raw);
         }
 
         public void InitializeSerialManager(SerialManage serial_manager) {

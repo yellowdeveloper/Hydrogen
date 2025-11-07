@@ -28,8 +28,8 @@ namespace Hydrogen.SerialComm {
             sp.RtsEnable = false;
             sp.DtrEnable = false;
 
-            //sp.DataReceived += new SerialDataReceivedEventHandler(SerialReceived);
-            sp.DataReceived += SerialReceivedDebug;
+            sp.DataReceived += new SerialDataReceivedEventHandler(SerialReceived);
+            //sp.DataReceived += SerialReceivedDebug;
 
             if (!sp.IsOpen) {
                 try {
@@ -58,10 +58,11 @@ namespace Hydrogen.SerialComm {
         }
 
         public void SerialDisconnect() {
+            if (received_buffer.Count != 0) received_buffer.Clear();
             if (sp.IsOpen) {
                 try {
-                    //sp.DataReceived -= new SerialDataReceivedEventHandler(SerialReceived);
-                    sp.DataReceived -= SerialReceivedDebug;
+                    sp.DataReceived -= new SerialDataReceivedEventHandler(SerialReceived);
+                    //sp.DataReceived -= SerialReceivedDebug;
                     sp.Close();
                     GlobalUIManager.Instance.SetDebugStat($"Port : {GlobalSerialManager.Instance.GetPortName()} Serial Disconnnected");
                     // Console.WriteLine($"Serial Disconnected");
@@ -110,7 +111,7 @@ namespace Hydrogen.SerialComm {
                 //}
                 //Console.Write(": ");
 
-                Console.Write($"{Encoding.UTF8.GetString(buffer)}");
+                Console.Write($"{Encoding.UTF8.GetString(buffer)}\n");
             }
             catch (Exception ex)
             {
@@ -119,73 +120,168 @@ namespace Hydrogen.SerialComm {
         }
 
         private void SerialReceived(object s, SerialDataReceivedEventArgs e) {
-            //GlobalUIManager.Instance.SetDebugStat($"{GlobalSerialManager.Instance.GetPortName()} {sp.BytesToRead} bytes received");
-            
-            while (sp.BytesToRead > 0) {
-                int tmp = sp.ReadByte();
+            if (!sp.IsOpen) return;
 
-                // Board & Sensor Error
-                if (tmp == 0x01) {
-                    GlobalUIManager.Instance.SetDebugStat($"Sensor is not responding");
-                    Console.WriteLine($"Sensor is not responding");
-                }
-                else if (tmp == 0x00) {
-                    GlobalUIManager.Instance.SetDebugStat($"Board -> Sensor Transfer Error");
-                    Console.WriteLine($"Board -> Sensor Transfer Error");
-                }
-                else {
-                    GlobalUIManager.Instance.SetDebugStat($"Undefined Error in Hydrogen Board");
-                }
+            try {
+                int bytes_to_read = sp.BytesToRead; // Test with tx change to rx later
+                byte[] buffer = new byte[bytes_to_read];
+                int actually_read = sp.Read(buffer, 0, bytes_to_read);  // Test with tx change to rx later
 
-                // Receiving Sensor Data
-                if (tmp == 0x18) {
-                    GlobalUIManager.Instance.SetDebugStat($"Header Status OK : {tmp}");
-                    GlobalSerialManager.Instance.SetIsMeasurementTriggered(true);
-                }
+                if (actually_read > 0) received_buffer.AddRange(buffer.Take(actually_read));
 
-                if (GlobalSerialManager.Instance.GetIsMeasurementTriggered()) {
-                    try {
-                        GlobalSerialManager.Instance.AddToReceiveBuffer(tmp);
-                        GlobalSerialManager.Instance.SetBufferIndex(GlobalSerialManager.Instance.GetBufferIndex() + 1);
-                    }
-                    catch {
-                        Console.WriteLine($"RECEIVE BUFFER ERROR");
-                    }
+                if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.Raw) ProcessReceivedData_Raw();
+                else if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.LPF) ProcessReceivedData_LPF();
+                else if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.AVG) ProcessReceivedData_AVG();
 
-                    if (GlobalSerialManager.Instance.GetBufferIndex() == 5) {
-                        data_array_tmp = ProcessReceivedData(GlobalSerialManager.Instance.GetReceiveBuffer());
-                        GlobalSerialManager.Instance.SetSerialReceivedData(data_array_tmp[0].ToString());
-                        GlobalSerialManager.Instance.SetBufferIndex(0);
-                        GlobalSerialManager.Instance.SetIsMeasurementTriggered(false);
-                    }
-                }
 
-                //string str_receiveData = receiveData.ToString();
-                GlobalUIManager.Instance.SetDebugStat($"received data = {data_array_tmp[0]}");
             }
-            if (sp.BytesToRead <= 0) {
-                //GlobalUIManager.Instance.SetDebugStat($"{GlobalSerialManager.Instance.GetPortName()} {sp.BytesToRead} bytes received");
-                //Console.WriteLine($"no Bytes to Read");
+
+            catch (Exception ex) {
+                GlobalLogManager.Instance.ConsoleLog("ERROR", $"Error occured while receiving {ex}");
+                GlobalLogManager.Instance.AddLogToFile("ERROR", $"Error occured while receiving {ex}");
             }
         }
 
-        private int[] ProcessReceivedData(int[] received_buffer) {
-            string data = String.Empty;
-            int [] data_array = new int [2];
+        private void ProcessReceivedData_Raw() {
+            while(received_buffer.Count >= 11) {
+                //Check if Header is OK
+                if (!HeaderCheck()) continue;
 
-            for (int i = 1; i < received_buffer.Length; i++) {
-                data += Convert.ToString(received_buffer[i], 2).PadLeft(8, '0');
+                string dc = get_digital_count(received_buffer[0], received_buffer[1], received_buffer[2]).ToString();
+
+                GlobalSerialManager.Instance.SetSerialReceivedDataRaw(dc);
+                received_buffer.RemoveRange(0, 3);
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (RAW) :: {GlobalSerialManager.Instance.GetSerialReceivedDataRaw()}");
+
+                CalMinMaxDiff(Int32.Parse(dc));
+
+                if (!FooterCheck()) continue;
+
+                if (GlobalUIManager.Instance.GetIsTxtLogging()) GlobalLogManager.Instance.DataValueLog();
             }
+        }
+        private void ProcessReceivedData_LPF() {
+            while (received_buffer.Count >= 19) {
+                //Check if Header is OK
+                if (!HeaderCheck()) continue;
 
-            data_array[0] = Convert.ToInt32(data.Substring(0, 20), 2);
-            data_array[1] = Convert.ToInt32(data.Substring(20), 2);
+                string dc = get_digital_count(received_buffer[0], received_buffer[1], received_buffer[2]).ToString();
 
-            //Console.WriteLine($"Now Status : 0x{received_buffer[0]:X2}");
-            //Console.WriteLine($"2bit exp integrated (Humid+Temp) : {data}");
-            Console.WriteLine($"Humid : {data.Substring(0, 20)} :: {data_array[0]}");
-            //Console.WriteLine($"Temp : {data.Substring(20)} :: {data_array[1]}");
+                GlobalSerialManager.Instance.SetSerialReceivedDataRaw(dc);
+                received_buffer.RemoveRange(0, 3);
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (RAW) :: {GlobalSerialManager.Instance.GetSerialReceivedDataRaw()}");
 
-            return data_array;
+                CalMinMaxDiff(Int32.Parse(dc));
+
+                GlobalSerialManager.Instance.SetSerialReceivedDataLPF(ConvertByteArray(received_buffer.GetRange(0, 8).ToArray()));
+                received_buffer.RemoveRange(0, 8);
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (LPF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataLPF()}");
+
+                if (!FooterCheck()) continue;
+
+                if (GlobalUIManager.Instance.GetIsTxtLogging()) GlobalLogManager.Instance.DataValueLog();
+            }
+        }
+
+        private void ProcessReceivedData_AVG() {
+            while (received_buffer.Count >= 27) {
+                //Check if Header is OK
+                if (!HeaderCheck()) continue;
+
+                string dc = get_digital_count(received_buffer[0], received_buffer[1], received_buffer[2]).ToString();
+
+                GlobalSerialManager.Instance.SetSerialReceivedDataRaw(dc);
+                received_buffer.RemoveRange(0, 3);
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (RAW) :: {GlobalSerialManager.Instance.GetSerialReceivedDataRaw()}");
+
+                CalMinMaxDiff(Int32.Parse(dc));
+
+                GlobalSerialManager.Instance.SetSerialReceivedDataLPF(ConvertByteArray(received_buffer.GetRange(0,8).ToArray()));
+                received_buffer.RemoveRange(0, 8);
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (LPF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataLPF()}");
+
+                GlobalSerialManager.Instance.SetSerialReceivedDataAVG(ConvertByteArray(received_buffer.GetRange(0, 8).ToArray()));
+                received_buffer.RemoveRange(0, 8);
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (AVG) :: {GlobalSerialManager.Instance.GetSerialReceivedDataAVG()}");
+
+                if (!FooterCheck()) continue;
+
+                if (GlobalUIManager.Instance.GetIsTxtLogging()) GlobalLogManager.Instance.DataValueLog();
+            }
+        }
+
+        private bool HeaderCheck() {
+            if (received_buffer[0] == 0x09 && received_buffer[1] == 0x0D && received_buffer[2] == 0x09 && received_buffer[3] == 0x0D) {
+                received_buffer.RemoveRange(0, 4);
+                GlobalLogManager.Instance.ConsoleLog("OK", "Received Right Header :: 0x09 0x0D 0x09 0x0D Remove From Buffer");
+                GlobalLogManager.Instance.AddLogToFile("DEBUG", "Received Right Header :: 0x09 0x0D 0x09 0x0D Remove From Buffer");
+                return true;
+            }
+            else {
+                GlobalLogManager.Instance.ConsoleLog("ERROR", $"Wrong Header :: Contents in Buffer ::");
+                GlobalLogManager.Instance.AddLogToFile("ERROR", $"Wrong Header :: Erase First Byte in Buffer And Process");
+
+                for (int i = 0; i < received_buffer.Count; i++) {
+                    Console.Write($"{received_buffer[i]:X2}  ");
+                }
+
+                Console.Write("Erase First Byte in Buffer And Process\n");
+                received_buffer.RemoveAt(0);
+                return false;
+            }
+        }
+
+        private bool FooterCheck() {
+            if (received_buffer[0] == 0x27 && received_buffer[1] == 0x22 && received_buffer[2] == 0x27 && received_buffer[3] == 0x22) {
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Right Footer :: 0x27 0x22 0x27 0x22 Remove From Buffer\n");
+                received_buffer.RemoveRange(0, 4);
+                //GlobalLogManager.Instance.ConsoleLog($"Received Right Footer :: {received_buffer[0]:X2} 0x0A 0x0D 0x0A Remove From Buffer");
+                GlobalLogManager.Instance.AddLogToFile("DEBUG", "Received Right Footer :: 0x27 0x22 0x27 0x22 Remove From Buffer");
+                return true;
+            }
+            else {
+                GlobalLogManager.Instance.ConsoleLog("ERROR", $"Wrong Footer :: Contents in Buffer :: ");
+                GlobalLogManager.Instance.AddLogToFile("ERROR", $"Wrong Footer :: Erase First Byte in Buffer And Process");
+
+                for (int i = 0; i < received_buffer.Count; i++) {
+                    Console.Write($"{received_buffer[i]:X2}  ");
+                }
+
+                Console.Write(" Erase First Byte in Buffer And Process\n");
+                received_buffer.RemoveAt(0);
+                return false;
+            }
+        }
+
+        private string ConvertByteArray(byte[] val) {
+            string result =  (-BitConverter.ToDouble(val, 0)).ToString("F3");
+            return result;
+        }
+
+        private void CalMinMaxDiff(int val) {
+            int max = GlobalUIManager.Instance.GetMaxRaw();
+            int min = GlobalUIManager.Instance.GetMinRaw();
+            int diff = 0;
+
+            if (max == 0) GlobalUIManager.Instance.SetMaxRaw(val);
+            if (min == 0) GlobalUIManager.Instance.SetMinRaw(val);
+
+            if (max < val) GlobalUIManager.Instance.SetMaxRaw(val);
+            if (min > val) GlobalUIManager.Instance.SetMinRaw(val);
+
+            diff = max - min;
+
+            GlobalUIManager.Instance.SetDiffRaw(diff);
+        }
+
+        private int get_digital_count(byte b1, byte b2, byte b3) {
+            int dc;
+            dc = (b1 << 16) |
+                 (b2 << 8 ) |
+                  b3;
+            dc = dc << 8;
+            dc = dc >> 8;
+            return -dc;
         }
     }
 }

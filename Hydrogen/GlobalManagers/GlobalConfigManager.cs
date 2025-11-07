@@ -52,9 +52,9 @@ namespace Hydrogen.GlobalManagers {
             _log_folder_path = log_folder_path;
         }
 
-        public string GetNowLogFileName() {
+        public string GetNowLogDefaultFileName() {
             DateTime now = DateTime.Now;
-            _now_log_file_name = $"Hydrogen_Sense_{now.ToString("yyyyMMdd_HH")}_{same_file_cnt}.csv";
+            _now_log_file_name = $"Hydrogen_Sense_{now.ToString("yyyyMMdd_HH")}_H2-{GlobalUIManager.Instance.GetHydrogenPercent()}_{same_file_cnt}.txt";
             string now_log_file_path = Path.Combine(_log_folder_path, _now_log_file_name);
             if (!File.Exists(now_log_file_path)) {
                 same_file_cnt = 0;
@@ -62,8 +62,12 @@ namespace Hydrogen.GlobalManagers {
             }
             else {
                 same_file_cnt++;
-                return GetNowLogFileName();
+                return GetNowLogDefaultFileName();
             }
+        }
+
+        public string GetNowLogFileName() {
+            return _now_log_file_name;
         }
 
         public void SetLogFileName(string log_file_name) {

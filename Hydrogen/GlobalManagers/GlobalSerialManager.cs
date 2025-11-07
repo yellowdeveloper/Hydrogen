@@ -11,6 +11,12 @@ namespace Hydrogen.GlobalManagers
         private static readonly GlobalSerialManager _instance = new GlobalSerialManager();
         public static GlobalSerialManager Instance => _instance;
 
+        public enum Filter {
+            Raw,
+            LPF,
+            AVG
+        }
+
         private string _model_name;
         private string _port_name;
         private int _baudrate;
@@ -37,21 +43,22 @@ namespace Hydrogen.GlobalManagers
         public bool GetDtrEnable() { return _dtr_enable; }
         public void SetDtrEnable(bool dtr_enable) { _dtr_enable = dtr_enable; }
 
-        private string _serial_received_data;
-        private bool _is_measurement_triggered = false;
+        private string _serial_received_data_raw;
+        private string _serial_received_data_lpf;
+        private string _serial_received_data_avg;
         private bool _is_connected = false;
-        private int[] receive_buffer = new int[6];
-        private int _buffer_index = 0;
+        private Filter _filter = Filter.Raw;
 
-        public string GetSerialReceivedData() { return _serial_received_data; }
-        public void SetSerialReceivedData(string serial_received_data) { _serial_received_data = serial_received_data; }
-        public bool GetIsMeasurementTriggered() { return _is_measurement_triggered; }
-        public void SetIsMeasurementTriggered(bool is_measurement_triggered) { _is_measurement_triggered = is_measurement_triggered; }
+
+        public string GetSerialReceivedDataRaw() { return _serial_received_data_raw; }
+        public void SetSerialReceivedDataRaw(string serial_received_data_raw) { _serial_received_data_raw = serial_received_data_raw; }
+        public string GetSerialReceivedDataLPF() { return _serial_received_data_lpf; }
+        public void SetSerialReceivedDataLPF(string serial_received_data_lpf) { _serial_received_data_lpf = serial_received_data_lpf; }
+        public string GetSerialReceivedDataAVG() { return _serial_received_data_avg; }
+        public void SetSerialReceivedDataAVG(string serial_received_data_avg) { _serial_received_data_avg = serial_received_data_avg; }
         public bool GetIsConnected() { return _is_connected; }
         public void SetIsConnected(bool is_connected) { _is_connected = is_connected; }
-        public int GetBufferIndex() { return _buffer_index; }
-        public void SetBufferIndex(int buffer_index) { _buffer_index = buffer_index; }
-        public void AddToReceiveBuffer(int received_data) { receive_buffer[_buffer_index] = received_data; }
-        public int[] GetReceiveBuffer () { return receive_buffer; }
+        public Filter GetFilter() { return _filter; }
+        public void SetFilter(Filter filter) { _filter = filter; }
     }
 }

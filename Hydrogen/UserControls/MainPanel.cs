@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Hydrogen.UserControls
 {
@@ -16,8 +17,15 @@ namespace Hydrogen.UserControls
     {
         decimal time = 0m;
         private bool is_mouse_over;
+        private const int dc_max = 8388608;
+        private const int dc_min = -8388608;
+
         public MainPanel() {
             InitializeComponent();
+            chart1.ChartAreas["Raw"].AxisX.LabelStyle.Format = "F1";
+            chart1.ChartAreas["Raw"].AxisY.LabelStyle.Format = "F1";
+
+            chart1.Series["Raw"].LegendText = "Raw: #LAST{N0}";
         }
 
         /// <summary>
@@ -76,44 +84,140 @@ namespace Hydrogen.UserControls
                     y_scale_text_box.ForeColor = SystemColors.ControlDark;
                 }
 
-                GlobalUIManager.Instance.SetYScale(Int32.Parse(y_scale_text_box.Text.Substring(0, y_scale_text_box.Text.Length - 1)));
+                GlobalUIManager.Instance.SetYScale(double.Parse(y_scale_text_box.Text.Substring(0, y_scale_text_box.Text.Length - 1)));
                 y_scale_text_box.ForeColor = SystemColors.ControlDark;
             }
         }
 
         /// <summary>
+        /// 차트 Series 컨트롤
+        /// </summary>
+        /// <param name="series_name"></param>
+        private void AddNewSeriesToChart(string series_name) {
+            if (!SeriesExists(series_name)) {
+                chart1.Series.Add(series_name);
+                chart1.Series[series_name].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+                chart1.Series[series_name].BorderWidth = 2;
+
+                chart1.Series[series_name].LegendText = $"{series_name}: " + "#LAST{N0}";
+            }
+        }
+
+        private void RemoveSeriesFromChart(int cnt) {
+            for (int i = chart1.Series.Count - 1; i > 0; i--) {
+                chart1.Series.RemoveAt(i);
+            }
+        }
+
+        private bool SeriesExists(string name) {
+            var series_found = chart1.Series.FindByName(name);
+
+            if (series_found != null) return true;
+            else return false;
+        }
+
+        /// <summary>
         /// 차트 업데이트 메서드
         /// </summary>
-        public void AddValueToChart(String series) {
+        public void UpdateChart(string[] series) {
             if (!GlobalUIManager.Instance.GetIsGraphLogging() || !GlobalSerialManager.Instance.GetIsConnected()) return;
 
+            time += 0.1m;
             int value = 0;
 
-            if (GlobalSerialManager.Instance.GetSerialReceivedData() != null) {
-                time += 0.1m;
+            for (int i = 1; i < series.Length; i++) AddNewSeriesToChart(series[i]);
 
-                value = Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedData());
+            if (series.Length < chart1.Series.Count) RemoveSeriesFromChart(chart1.Series.Count - series.Length);
 
+
+            value = AddValueToChart(series[0]);
+            for (int i = 1; i < series.Length; i++) {
+                AddValueToChart(series[i]);
+            }
+            AddInfoToChartTitle("MAX", GlobalUIManager.Instance.GetMaxRaw().ToString());
+            AddInfoToChartTitle("MIN", GlobalUIManager.Instance.GetMinRaw().ToString());
+            AddInfoToChartTitle("MIN-MAX DIFF", GlobalUIManager.Instance.GetDiffRaw().ToString());
+
+            UpdateChartArea(series[0], value);
+        }
+
+        private int AddValueToChart(string series) {
+            double value = 0;
+            if (GlobalSerialManager.Instance.GetSerialReceivedDataRaw() != null) {
+                if (!SeriesExists(series)) return 0;
+
+                switch (series)
+                {
+                    case "Raw":
+                        value = Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataRaw());
+                        break;
+                    case "LPF":
+                        if (GlobalSerialManager.Instance.GetSerialReceivedDataLPF() == null) return (int)value;
+                        value = Double.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataLPF());
+                        break;
+                    case "AVG":
+                        if (GlobalSerialManager.Instance.GetSerialReceivedDataAVG() == null) return (int)value;
+                        value = Double.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataAVG());
+                        break;
+                }
+                
                 chart1.Series[series].Points.AddXY(time, value);
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Added value({series}) :: {value}");
+            }
+            return (int)value;
+        }
+
+        private void UpdateChartArea(string series, double value) {
+            double window_size = GlobalUIManager.Instance.GetXScale();
+
+            double x_max = chart1.Series[series].Points.Last().XValue;
+
+            double x_min = x_max - window_size;
+
+            if (x_min < 0) x_min = 0;
+            if (x_max < window_size) x_max = window_size;
+
+            if (value == 0) value = 1000;
+
+            double y_max = (value > 0) ? dc_max : dc_min;
+
+            y_max = value + (y_max * (GlobalUIManager.Instance.GetYScale() / 100.0f));
+            double y_min = (value * 2) - y_max;
+
+            if (y_max > dc_max) y_max = dc_max;
+            if (y_min < dc_min) y_min = dc_min;
+
+            try
+            {
+                chart1.ChartAreas[series].AxisY.Maximum = (value <= 0) ? y_min : y_max;
+                chart1.ChartAreas[series].AxisY.Minimum = (value >= 0) ? y_min : y_max;
+            }
+            catch (Exception ex)
+            {
+                GlobalLogManager.Instance.ConsoleLog("ERROR", $"{ex}");
             }
 
-            if (chart1.Series[series].Points.Count > 0)
-            {
-                double window_size = GlobalUIManager.Instance.GetXScale();
+            chart1.ChartAreas[series].AxisX.Minimum = x_min;
+            chart1.ChartAreas[series].AxisX.Maximum = x_max;
+        }
 
-                double max = chart1.Series[series].Points.Last().XValue;
+        private void AddInfoToChartTitle(string name, string value) {
+            string text = $"{name}: {value:N0}";
+            if (chart1.Titles.FindByName(name) == null) { 
+                var title = new System.Windows.Forms.DataVisualization.Charting.Title();
 
-                double min = max - window_size;
+                title.Name = name;
+                title.Text = text;
+                title.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Top;
+                title.Alignment = System.Drawing.ContentAlignment.TopCenter;
+                title.ForeColor = Color.Red;
+                title.DockedToChartArea = "Raw";
+                title.DockingOffset = -1;
 
-                if (min < 0) min = 0;
-
-                if (max < window_size) max = window_size;
-
-                chart1.ChartAreas[series].AxisY.Minimum = value - value / GlobalUIManager.Instance.GetYScale();
-                chart1.ChartAreas[series].AxisY.Maximum = value + value / GlobalUIManager.Instance.GetYScale();
-
-                chart1.ChartAreas[series].AxisX.Minimum = min;
-                chart1.ChartAreas[series].AxisX.Maximum = max;
+                chart1.Titles.Add(title);
+            }
+            else {
+                chart1.Titles[name].Text = text;
             }
         }
 
