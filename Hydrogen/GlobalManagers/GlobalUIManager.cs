@@ -19,6 +19,7 @@ namespace Hydrogen.GlobalManagers
         private string _hydrogen_percent = "1";
         private bool _is_graph_logging = false;
         private bool _is_txt_logging = false;
+        private bool _is_axis_y_locked = false;
         private int _max_raw = 0;
         private int _min_raw = 0;
         private int _min_max_diff = 0;
@@ -43,6 +44,9 @@ namespace Hydrogen.GlobalManagers
 
         public bool GetIsTxtLogging() { return _is_txt_logging; }
         public void SetIsTxtLogging(bool is_txt_logging) { _is_txt_logging = is_txt_logging; }
+
+        public bool GetIsAxisYLocked() { return _is_axis_y_locked; }
+        public void SetIsAxisYLocked(bool is_axis_y_locked) { _is_axis_y_locked = is_axis_y_locked; }
 
         public int GetMaxRaw() { return _max_raw; }
         public void SetMaxRaw(int max_raw) { _max_raw = max_raw; }

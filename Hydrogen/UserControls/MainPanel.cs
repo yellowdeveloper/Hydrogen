@@ -17,6 +17,10 @@ namespace Hydrogen.UserControls
     {
         decimal time = 0m;
         private bool is_mouse_over;
+        private bool is_dragging;
+
+        private Point lastPos = new Point(0, 0);
+
         private const int dc_max = 8388608;
         private const int dc_min = -8388608;
 
@@ -69,6 +73,7 @@ namespace Hydrogen.UserControls
 
                 GlobalUIManager.Instance.SetXScale(Int32.Parse(x_scale_text_box.Text.Substring(0, x_scale_text_box.Text.Length - 1)));
                 x_scale_text_box.ForeColor = SystemColors.ControlDark;
+                UpdateChartAreaX("Raw");
             }
         }
 
@@ -86,6 +91,7 @@ namespace Hydrogen.UserControls
 
                 GlobalUIManager.Instance.SetYScale(double.Parse(y_scale_text_box.Text.Substring(0, y_scale_text_box.Text.Length - 1)));
                 y_scale_text_box.ForeColor = SystemColors.ControlDark;
+                UpdateChartAreaY("Raw", Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataRaw()));
             }
         }
 
@@ -138,7 +144,9 @@ namespace Hydrogen.UserControls
             AddInfoToChartTitle("MIN", GlobalUIManager.Instance.GetMinRaw().ToString());
             AddInfoToChartTitle("MIN-MAX DIFF", GlobalUIManager.Instance.GetDiffRaw().ToString());
 
-            UpdateChartArea(series[0], value);
+            UpdateChartAreaX(series[0]);
+            if (GlobalUIManager.Instance.GetIsAxisYLocked()) return;
+            UpdateChartAreaY(series[0], value);
         }
 
         private int AddValueToChart(string series) {
@@ -167,7 +175,7 @@ namespace Hydrogen.UserControls
             return (int)value;
         }
 
-        private void UpdateChartArea(string series, double value) {
+        private void UpdateChartAreaX(string series) {
             double window_size = GlobalUIManager.Instance.GetXScale();
 
             double x_max = chart1.Series[series].Points.Last().XValue;
@@ -177,6 +185,11 @@ namespace Hydrogen.UserControls
             if (x_min < 0) x_min = 0;
             if (x_max < window_size) x_max = window_size;
 
+            chart1.ChartAreas[series].AxisX.Minimum = x_min;
+            chart1.ChartAreas[series].AxisX.Maximum = x_max;
+        }
+
+        private void UpdateChartAreaY(string series, double value) {
             if (value == 0) value = 1000;
 
             double y_max = (value > 0) ? dc_max : dc_min;
@@ -196,9 +209,6 @@ namespace Hydrogen.UserControls
             {
                 GlobalLogManager.Instance.ConsoleLog("ERROR", $"{ex}");
             }
-
-            chart1.ChartAreas[series].AxisX.Minimum = x_min;
-            chart1.ChartAreas[series].AxisX.Maximum = x_max;
         }
 
         private void AddInfoToChartTitle(string name, string value) {
@@ -218,6 +228,15 @@ namespace Hydrogen.UserControls
             }
             else {
                 chart1.Titles[name].Text = text;
+            }
+        }
+
+        private void y_scale_lock_check_box_CheckedChanged(object sender, EventArgs e) {
+            if (GlobalUIManager.Instance.GetIsAxisYLocked()) {
+                GlobalUIManager.Instance.SetIsAxisYLocked(false);
+            }
+            else {
+                GlobalUIManager.Instance.SetIsAxisYLocked(true);
             }
         }
 
@@ -249,6 +268,55 @@ namespace Hydrogen.UserControls
             }
             else {
                 button.BackColor = Color.White;
+            }
+        }
+
+        /// <summary>
+        /// 차트 드래그 이벤트
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void chart1_MouseDown(object sender, MouseEventArgs e) {
+            is_dragging = true;
+            lastPos = e.Location;
+            chart1.Cursor = Cursors.Hand;
+        }
+
+        private void chart1_MouseUp(object sender, MouseEventArgs e) {
+            is_dragging = false;
+            chart1.Cursor = Cursors.Default;
+        }
+
+        private void chart1_MouseMove(object sender, MouseEventArgs e) {
+            if (is_dragging == false) return;
+            try {
+                var axisX = chart1.ChartAreas["Raw"].AxisX;
+                double window_size = GlobalUIManager.Instance.GetXScale();
+
+                double lastX = axisX.PixelPositionToValue(lastPos.X);
+                double currentX = axisX.PixelPositionToValue(e.Location.X);
+
+                double x_max = axisX.Maximum;
+                double x_min = x_max - window_size;
+
+                double lastXValue = axisX.PixelPositionToValue(lastPos.X);
+                double currentXValue = axisX.PixelPositionToValue(e.Location.X);
+
+                double deltaX = (lastX - currentX); 
+
+                x_max = x_max + deltaX;
+                x_min = x_min + deltaX;
+
+                if (x_min < 0) x_min = 0;
+                if (x_max < window_size) x_max = window_size;
+
+                axisX.Minimum = x_min;
+                axisX.Maximum = x_max;
+
+                lastPos = e.Location;
+            }
+            catch (Exception ex){
+                GlobalLogManager.Instance.ConsoleLog("ERROR", $"{ex}");
             }
         }
 

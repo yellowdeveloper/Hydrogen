@@ -40,6 +40,7 @@
             this.x_scale_label = new System.Windows.Forms.Label();
             this.y_scale_label = new System.Windows.Forms.Label();
             this.x_scale_text_box = new System.Windows.Forms.TextBox();
+            this.y_scale_lock_check_box = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.tableLayoutPanel2.SuspendLayout();
@@ -93,10 +94,13 @@
             this.chart1.Size = new System.Drawing.Size(1072, 599);
             this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
+            this.chart1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseDown);
+            this.chart1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseMove);
+            this.chart1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.chart1_MouseUp);
             // 
             // tableLayoutPanel2
             // 
-            this.tableLayoutPanel2.ColumnCount = 7;
+            this.tableLayoutPanel2.ColumnCount = 8;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 103F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -104,12 +108,14 @@
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 57F));
             this.tableLayoutPanel2.Controls.Add(this.y_scale_text_box, 6, 0);
             this.tableLayoutPanel2.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.pictureBox1, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.x_scale_label, 3, 0);
             this.tableLayoutPanel2.Controls.Add(this.y_scale_label, 5, 0);
             this.tableLayoutPanel2.Controls.Add(this.x_scale_text_box, 4, 0);
+            this.tableLayoutPanel2.Controls.Add(this.y_scale_lock_check_box, 7, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(2, 2);
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 1);
@@ -124,7 +130,7 @@
             this.y_scale_text_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.y_scale_text_box.Dock = System.Windows.Forms.DockStyle.Fill;
             this.y_scale_text_box.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.y_scale_text_box.Location = new System.Drawing.Point(1025, 5);
+            this.y_scale_text_box.Location = new System.Drawing.Point(968, 5);
             this.y_scale_text_box.Margin = new System.Windows.Forms.Padding(3, 5, 3, 3);
             this.y_scale_text_box.Name = "y_scale_text_box";
             this.y_scale_text_box.Size = new System.Drawing.Size(44, 14);
@@ -171,7 +177,7 @@
             this.x_scale_label.AutoSize = true;
             this.x_scale_label.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.x_scale_label.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(40)))), ((int)(((byte)(80)))));
-            this.x_scale_label.Location = new System.Drawing.Point(873, 2);
+            this.x_scale_label.Location = new System.Drawing.Point(816, 2);
             this.x_scale_label.Margin = new System.Windows.Forms.Padding(0);
             this.x_scale_label.Name = "x_scale_label";
             this.x_scale_label.Size = new System.Drawing.Size(48, 15);
@@ -184,7 +190,7 @@
             this.y_scale_label.AutoSize = true;
             this.y_scale_label.Font = new System.Drawing.Font("Segoe UI Semibold", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.y_scale_label.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(40)))), ((int)(((byte)(80)))));
-            this.y_scale_label.Location = new System.Drawing.Point(973, 2);
+            this.y_scale_label.Location = new System.Drawing.Point(916, 2);
             this.y_scale_label.Margin = new System.Windows.Forms.Padding(0);
             this.y_scale_label.Name = "y_scale_label";
             this.y_scale_label.Size = new System.Drawing.Size(48, 15);
@@ -196,7 +202,7 @@
             this.x_scale_text_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.x_scale_text_box.Dock = System.Windows.Forms.DockStyle.Fill;
             this.x_scale_text_box.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.x_scale_text_box.Location = new System.Drawing.Point(925, 5);
+            this.x_scale_text_box.Location = new System.Drawing.Point(868, 5);
             this.x_scale_text_box.Margin = new System.Windows.Forms.Padding(3, 5, 3, 3);
             this.x_scale_text_box.Name = "x_scale_text_box";
             this.x_scale_text_box.Size = new System.Drawing.Size(44, 14);
@@ -205,6 +211,17 @@
             this.x_scale_text_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.x_scale_text_box.MouseClick += new System.Windows.Forms.MouseEventHandler(this.text_box_Click);
             this.x_scale_text_box.KeyDown += new System.Windows.Forms.KeyEventHandler(this.x_scale_text_box_KeyDown);
+            // 
+            // y_scale_lock_check_box
+            // 
+            this.y_scale_lock_check_box.AutoSize = true;
+            this.y_scale_lock_check_box.Location = new System.Drawing.Point(1018, 3);
+            this.y_scale_lock_check_box.Name = "y_scale_lock_check_box";
+            this.y_scale_lock_check_box.Size = new System.Drawing.Size(51, 14);
+            this.y_scale_lock_check_box.TabIndex = 6;
+            this.y_scale_lock_check_box.Text = "Lock";
+            this.y_scale_lock_check_box.UseVisualStyleBackColor = true;
+            this.y_scale_lock_check_box.CheckedChanged += new System.EventHandler(this.y_scale_lock_check_box_CheckedChanged);
             // 
             // MainPanel
             // 
@@ -234,5 +251,6 @@
         private System.Windows.Forms.Label y_scale_label;
         private System.Windows.Forms.TextBox x_scale_text_box;
         private System.Windows.Forms.TextBox y_scale_text_box;
+        private System.Windows.Forms.CheckBox y_scale_lock_check_box;
     }
 }
