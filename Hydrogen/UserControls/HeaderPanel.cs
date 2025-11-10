@@ -85,17 +85,32 @@ namespace Hydrogen.UserControls {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void sav_btn_Click(object sender, EventArgs e) {
-            GlobalConfigManager.Instance.SetConfig();
+            try {
+                GlobalConfigManager.Instance.SetConfig();
+                GlobalUIManager.Instance.SetDebugStat("Option Successfully saved to init file.");
+            }
+            catch (Exception ex){
+                GlobalLogManager.Instance.ConsoleLog("ERROR", "Error while saving options.");
+                GlobalLogManager.Instance.AddLogToFile("ERROR", "Error while saving options.");
+            }
             //string NowConfig = GlobalConfigManager.Instance.ConvertConfigToString();
             //File.WriteAllText(Path.Combine(GlobalConfigManager.Instance.GetConfigFolderPath(), GlobalConfigManager.Instance.GetConfigFileName()), NowConfig);
         }
 
         private void load_btn_Click(object sender, EventArgs e) {
-            InitializeManager.InitializeProgram();
-            this.interface_lab.Text = $"Interface   :   {GlobalSerialManager.Instance.GetPortName()}";
-            this.baudrate_lab.Text = $"Baudrate   :   {GlobalSerialManager.Instance.GetBaudrate().ToString()}";
+            try
+            {
+                InitializeManager.InitializeProgram();
+                this.interface_lab.Text = $"Interface   :   {GlobalSerialManager.Instance.GetPortName()}";
+                this.baudrate_lab.Text = $"Baudrate   :   {GlobalSerialManager.Instance.GetBaudrate().ToString()}";
 
-            GlobalSerialManager.Instance.SetFilter(GlobalSerialManager.Filter.Raw);
+                GlobalSerialManager.Instance.SetFilter(GlobalSerialManager.Filter.Raw);
+                GlobalUIManager.Instance.SetDebugStat("Option Successfully loaded from init file.");
+            }
+            catch (Exception ex) {
+                GlobalLogManager.Instance.ConsoleLog("ERROR", "Error while loading options.");
+                GlobalLogManager.Instance.AddLogToFile("ERROR", "Error while loading options.");
+            }
         }
 
         public void InitializeSerialManager(SerialManage serial_manager) {

@@ -41,7 +41,7 @@ namespace Hydrogen.GlobalManagers
             }
         }
 
-        private static void InitializeSettings () {
+        public static void InitializeSettings () {
             string config_folder_path = GlobalConfigManager.Instance.GetConfigFolderPath();
             string config_file_name = GlobalConfigManager.Instance.GetConfigFileName();
             string config_file_path = Path.Combine(config_folder_path, config_file_name);

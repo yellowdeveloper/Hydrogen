@@ -22,6 +22,7 @@ namespace Hydrogen {
         HeaderPanel header_panel = new HeaderPanel();
         private readonly SerialManage serial_manage = new SerialManage();
 
+
         public OverallForm() {
             InitializeComponent();
             InitializePanels();
@@ -31,6 +32,12 @@ namespace Hydrogen {
             header_panel.SetModelLabelText($"Model   :   {GlobalSerialManager.Instance.GetModelName()}");
 
             timer1.Start();
+
+            GlobalLogManager.AutoEnd += AutoEndEvent;
+
+            this.Disposed += (s, e) => {
+                GlobalLogManager.AutoEnd -= AutoEndEvent;
+            };
         }
 
         private void InitializePanels() {
@@ -62,7 +69,15 @@ namespace Hydrogen {
             catch (Exception ex) {
                 GlobalLogManager.Instance.ConsoleLog("ERROR", $"Error Occured while Updating Chart{ex}");
             }
-            
+        }
+
+        private void AutoEndEvent() {
+            if (this.side_panel.InvokeRequired) {
+                this.side_panel.Invoke(new Action(() => { this.side_panel.AutoCheckChange(); }));
+            }
+            else {
+                this.side_panel.AutoCheckChange();
+            }
         }
 
         private void tableLayoutPanel4_MouseDown(object sender, MouseEventArgs e) {

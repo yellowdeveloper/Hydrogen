@@ -1,4 +1,5 @@
-﻿using Hydrogen.GlobalManagers;
+﻿using Hydrogen.Forms;
+using Hydrogen.GlobalManagers;
 using Hydrogen.Properties;
 using Hydrogen.SerialComm;
 using System;
@@ -25,7 +26,9 @@ namespace Hydrogen.UserControls {
             InitializeComponent();
             log_file_name_text_box.Text = GlobalConfigManager.Instance.GetNowLogDefaultFileName();
             log_file_path_text_box.Text = GlobalConfigManager.Instance.GetLogFolderPath();
-            hydrogen_percent_text_box.Text = GlobalUIManager.Instance.GetHydrogenPercent().ToString() + "%";
+            hydrogen_percent_text_box.Text = GlobalUIManager.Instance.GetHydrogenPercent().ToString();
+            auto_stop_text_box.Text = GlobalLogManager.Instance.GetAutoStopCount().ToString();
+            InitializeCommands();
 
             InitializeManager.OnProgramInitialized += InitializeCommands;
             GlobalConfigManager.OnOptionSaved += SaveCommands;
@@ -105,6 +108,11 @@ namespace Hydrogen.UserControls {
                     GlobalLogManager.Instance.AddLogToFile("WARN", $"Error while Sending Command :: {ex}");
                 }
             }
+        }
+
+        public void AutoCheckChange() {
+            checkBox1.Checked = !GlobalLogManager.Instance.GetAutoStopEnabled();
+            play_button.Image = Resources.play;
         }
 
         private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e) {
@@ -289,13 +297,48 @@ namespace Hydrogen.UserControls {
         }
 
         /// <summary>
-        /// 
+        /// Handle Auto Stop Options
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void auto_stop_text_box_KeyDown(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) {
+                try {
+                    GlobalLogManager.Instance.SetAutoStopCount(Int32.Parse(auto_stop_text_box.Text));
+                }
+                catch {
+                    GlobalUIManager.Instance.SetDebugStat($"Setup Error - Invalid Counter Value {auto_stop_text_box.Text}");
+                    using (ErrorForm error_form = new ErrorForm()) {
+                        error_form.ShowDialog();
+                    }
+                }
+                auto_stop_text_box.ForeColor = SystemColors.ControlDark;
+            }
+        }
+        private void auto_stop_text_box_Click(object sender, EventArgs e) {
+            auto_stop_text_box.ForeColor = Color.Black;
+        }
+        private void auto_stop_text_box_Leave(object sender, EventArgs e) {
+            auto_stop_text_box.ForeColor = SystemColors.ControlDark;
+        }
+
+        private void auto_stop_check_box_CheckedChanged(object sender, EventArgs e) {
+            if (!GlobalLogManager.Instance.GetAutoStopEnabled()) { GlobalLogManager.Instance.SetAutoStopEnabled(true); }
+            else { GlobalLogManager.Instance.SetAutoStopEnabled(false); }
+            
+        }
+        private void auto_stop_text_box_MouseHover(object sender, EventArgs e) {
+            auto_stop_count_tool_tip.SetToolTip(auto_stop_text_box, "단위: ms");
+        }
+
+        /// <summary>
+        /// Modify Hydrogen Percent Written In Log File
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void hydrogen_percent_text_box_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) {
-                GlobalUIManager.Instance.SetHydrogenPercent(hydrogen_percent_text_box.Text.Substring(0, hydrogen_percent_text_box.TextLength - 1));
+                GlobalUIManager.Instance.SetHydrogenPercent(hydrogen_percent_text_box.Text);
                 hydrogen_percent_text_box.ForeColor = SystemColors.ControlDark;
             }
         }

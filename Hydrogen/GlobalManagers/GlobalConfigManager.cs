@@ -120,7 +120,36 @@ namespace Hydrogen.GlobalManagers {
                     { "Parity", "None" },
                     { "StopBits", "One" },
                     { "RTSEnable", "False" },
-                    { "DTREnable", "False" },
+                    { "DTREnable", "False" }
+                }
+            },
+            {
+                "DataCommandInfo", new Dictionary<string, string> {
+                    { "Raw", "-" },
+                    { "LPF", "0xFA" },
+                    { "AF_2", "0x2A" },
+                    { "AF_4", "0x4A" },
+                    { "AF_8", "0x8A" }
+                }
+            },
+            { 
+                "CtrlCommandInfo", new Dictionary<string, string> {
+                    { "ReadStart", "0x10" },
+                    { "ReadStop", "0x02" },
+                    { "Gain1", "0x30" },
+                    { "Gain2", "0x32" },
+                    { "Gain4", "0x34" },
+                    { "Gain8", "0x36" },
+                    { "Gain16", "0x38" },
+                    { "Gain32", "0x3A" },
+                    { "Gain64", "0x3C" },
+                    { "Gain128", "0x3E" },
+                    { "DR45", "0x20" },
+                    { "DR90", "0x40" },
+                    { "DR175", "0x60" },
+                    { "DR330", "0x80" },
+                    { "DR600", "0xA0" },
+                    { "DR1000", "0xC0" }
                 }
             }
         };

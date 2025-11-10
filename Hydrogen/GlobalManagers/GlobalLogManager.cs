@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using System.Threading;
 
 namespace Hydrogen.GlobalManagers
 {
@@ -13,9 +10,15 @@ namespace Hydrogen.GlobalManagers
         private static readonly GlobalLogManager _instance = new GlobalLogManager();
         public static GlobalLogManager Instance => _instance;
 
+        public static event Action AutoEnd;
+
         private FileStream fs;
         private StreamWriter sw;
         private static readonly object _logLock = new object();
+
+        private bool _auto_stop_enabled = false;
+        private int _auto_stop_count = 100;
+        private double _counter = 0;
 
         public void AddLogToFile(
             string type,
@@ -60,20 +63,16 @@ namespace Hydrogen.GlobalManagers
             string source_line = $"[{now_time}]:{fileName}:{memberName}(): Line {lineNumber}";
             string logMessage = source_line + note + comment;
 
-            if (type == "ERROR")
-            {
+            if (type == "ERROR") {
                 Console.ForegroundColor = ConsoleColor.Red;
             }
-            else if (type == "WARN")
-            {
+            else if (type == "WARN") {
                 Console.ForegroundColor = ConsoleColor.DarkYellow;
             }
-            else if (type == "OK")
-            {
+            else if (type == "OK"){
                 Console.ForegroundColor = ConsoleColor.Green;
             }
-            else
-            {
+            else {
                 Console.ForegroundColor = ConsoleColor.White;
             }
 
@@ -82,12 +81,24 @@ namespace Hydrogen.GlobalManagers
         }
 
         public void DataValueLog() {
+            if (Instance.GetAutoStopCount() <= Instance.GetCounter()) {
+                Instance.CloseDataLogFile();
+
+                GlobalUIManager.Instance.SetIsTxtLogging(false);
+
+                Instance.SetCounter(0);
+
+                AutoEnd?.Invoke();
+                return;
+            }
+
             string now_time = DateTime.Now.ToString("HH:mm:ssfff");
             string hydrogen_percent = GlobalUIManager.Instance.GetHydrogenPercent();
 
             string digital_count = GlobalSerialManager.Instance.GetSerialReceivedDataRaw();
             string lpf = "Not Set";
             string avg = "Not Set";
+
             string humidity;
             string temperature;
 
@@ -120,6 +131,14 @@ namespace Hydrogen.GlobalManagers
         }
 
         public void CloseDataLogFile() {
+            string log_fin = $"\nAVG\t=AVERAGE(B2:INDEX(B:B, ROW()-2))\nMIN\t=MIN(B2:INDEX(B:B, ROW()-3))\nMAX\t=MAX(B2:INDEX(B:B, ROW()-4))" +
+                $"\nSTDEV\t=STDEV(B2:INDEX(B:B, ROW()-5))\nMIN-MAX DIFF\t=INDEX(B:B, ROW()-2)-INDEX(B:B, ROW()-3)" +
+                $"\n\n=LET(SourceArray, LEFT(A2:INDEX(A:A, ROW()-8), 8), GROUPBY(SourceArray,SourceArray,COUNTA,0,0))";
+
+            lock (_logLock) {
+                sw.Write(log_fin);
+            }
+
             if (fs != null && sw != null) {
                 sw.Close();
                 fs.Close();
@@ -128,5 +147,14 @@ namespace Hydrogen.GlobalManagers
                 fs = null;
             }
         }
+
+        public bool GetAutoStopEnabled() { return _auto_stop_enabled; }
+        public void SetAutoStopEnabled(bool auto_stop_enabled) { _auto_stop_enabled = auto_stop_enabled; }
+
+        public int GetAutoStopCount() { return _auto_stop_count; }
+        public void SetAutoStopCount(int auto_stop_count) { _auto_stop_count = auto_stop_count; }
+
+        public double GetCounter() { return _counter; }
+        public void SetCounter(double counter) { _counter = counter; }
     }
 }

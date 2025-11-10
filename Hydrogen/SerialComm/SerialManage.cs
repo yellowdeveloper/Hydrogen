@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms.VisualStyles;
 
 
@@ -14,7 +14,7 @@ namespace Hydrogen.SerialComm {
     public class SerialManage {
 
         private SerialPort sp = new SerialPort();
-        private int[] data_array_tmp = new int[2];
+        Stopwatch stopwatch = new Stopwatch();
 
         private List<byte> received_buffer = new List<byte>();
 
@@ -123,7 +123,10 @@ namespace Hydrogen.SerialComm {
             if (!sp.IsOpen) return;
 
             try {
-                int bytes_to_read = sp.BytesToRead; // Test with tx change to rx later
+                if (GlobalUIManager.Instance.GetIsTxtLogging() && GlobalLogManager.Instance.GetAutoStopEnabled() && GlobalLogManager.Instance.GetCounter() == 0) stopwatch.Start();
+                else if ((!GlobalUIManager.Instance.GetIsTxtLogging() || !GlobalLogManager.Instance.GetAutoStopEnabled()) && GlobalLogManager.Instance.GetCounter() != 0) stopwatch.Reset();
+
+                    int bytes_to_read = sp.BytesToRead; // Test with tx change to rx later
                 byte[] buffer = new byte[bytes_to_read];
                 int actually_read = sp.Read(buffer, 0, bytes_to_read);  // Test with tx change to rx later
 
@@ -133,7 +136,7 @@ namespace Hydrogen.SerialComm {
                 else if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.LPF) ProcessReceivedData_LPF();
                 else if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.AVG) ProcessReceivedData_AVG();
 
-
+                GlobalLogManager.Instance.SetCounter(stopwatch.Elapsed.TotalMilliseconds);
             }
 
             catch (Exception ex) {

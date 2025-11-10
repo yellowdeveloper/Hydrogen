@@ -17,7 +17,7 @@ namespace Hydrogen.GlobalManagers
             AVG
         }
 
-        private string _model_name;
+        private string _model_name = "H2Sense01";
         private string _port_name;
         private int _baudrate;
         private int _databits;

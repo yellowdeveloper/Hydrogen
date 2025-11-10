@@ -1,4 +1,5 @@
-﻿using Hydrogen.GlobalManagers;
+﻿using Hydrogen.Forms;
+using Hydrogen.GlobalManagers;
 using Hydrogen.Properties;
 using System;
 using System.Collections.Generic;
@@ -70,10 +71,24 @@ namespace Hydrogen.UserControls
                     x_scale_text_box.Text = GlobalUIManager.Instance.GetXScale().ToString() + "s";
                     x_scale_text_box.ForeColor = SystemColors.ControlDark;
                 }
-
-                GlobalUIManager.Instance.SetXScale(Int32.Parse(x_scale_text_box.Text.Substring(0, x_scale_text_box.Text.Length - 1)));
+                
+                try {
+                    GlobalUIManager.Instance.SetXScale(Int32.Parse(x_scale_text_box.Text.Substring(0, x_scale_text_box.Text.Length - 1)));
+                }
+                catch {
+                    GlobalUIManager.Instance.SetDebugStat($"Setup Error - Invalid Scale Value {x_scale_text_box.Text}");
+                    using (ErrorForm error_form = new ErrorForm()) {
+                        error_form.ShowDialog();
+                    }
+                }
+                
                 x_scale_text_box.ForeColor = SystemColors.ControlDark;
-                UpdateChartAreaX("Raw");
+                try {
+                    UpdateChartAreaX("Raw");
+                }
+                catch (Exception ex) {
+                    GlobalLogManager.Instance.ConsoleLog("WARN", $"Error While Updating Chart {ex}");
+                }
             }
         }
 
@@ -89,9 +104,24 @@ namespace Hydrogen.UserControls
                     y_scale_text_box.ForeColor = SystemColors.ControlDark;
                 }
 
-                GlobalUIManager.Instance.SetYScale(double.Parse(y_scale_text_box.Text.Substring(0, y_scale_text_box.Text.Length - 1)));
+                try {
+                    GlobalUIManager.Instance.SetYScale(double.Parse(y_scale_text_box.Text.Substring(0, y_scale_text_box.Text.Length - 1)));
+                }
+                catch {
+                    GlobalUIManager.Instance.SetDebugStat($"Setup Error - Invalid Scale Value {y_scale_text_box.Text}");
+                    using (ErrorForm error_form = new ErrorForm()) {
+                        error_form.ShowDialog();
+                    }
+                }
+
                 y_scale_text_box.ForeColor = SystemColors.ControlDark;
-                UpdateChartAreaY("Raw", Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataRaw()));
+                try {
+                    UpdateChartAreaY("Raw", Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataRaw()));
+                }
+                catch (Exception ex) {
+                    GlobalLogManager.Instance.ConsoleLog("WARN", $"Error While Updating Chart {ex}");
+                }
+                
             }
         }
 
