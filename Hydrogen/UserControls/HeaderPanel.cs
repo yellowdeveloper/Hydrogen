@@ -104,7 +104,6 @@ namespace Hydrogen.UserControls {
                 this.interface_lab.Text = $"Interface   :   {GlobalSerialManager.Instance.GetPortName()}";
                 this.baudrate_lab.Text = $"Baudrate   :   {GlobalSerialManager.Instance.GetBaudrate().ToString()}";
 
-                GlobalSerialManager.Instance.SetFilter(GlobalSerialManager.Filter.Raw);
                 GlobalUIManager.Instance.SetDebugStat("Option Successfully loaded from init file.");
             }
             catch (Exception ex) {

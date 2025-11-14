@@ -165,11 +165,11 @@ namespace Hydrogen.UserControls
 
             if (series.Length < chart1.Series.Count) RemoveSeriesFromChart(chart1.Series.Count - series.Length);
 
-
             value = AddValueToChart(series[0]);
             for (int i = 1; i < series.Length; i++) {
                 AddValueToChart(series[i]);
             }
+
             AddInfoToChartTitle("MAX", GlobalUIManager.Instance.GetMaxRaw().ToString());
             AddInfoToChartTitle("MIN", GlobalUIManager.Instance.GetMinRaw().ToString());
             AddInfoToChartTitle("MIN-MAX DIFF", GlobalUIManager.Instance.GetDiffRaw().ToString());
@@ -189,13 +189,17 @@ namespace Hydrogen.UserControls
                     case "Raw":
                         value = Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataRaw());
                         break;
+                    case "SAF":
+                        if (GlobalSerialManager.Instance.GetSerialReceivedDataRaw() == null) return (int)value;
+                        value = Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataSAF());
+                        break;
                     case "LPF":
                         if (GlobalSerialManager.Instance.GetSerialReceivedDataLPF() == null) return (int)value;
                         value = Double.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataLPF());
                         break;
-                    case "AVG":
-                        if (GlobalSerialManager.Instance.GetSerialReceivedDataAVG() == null) return (int)value;
-                        value = Double.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataAVG());
+                    case "MAF":
+                        if (GlobalSerialManager.Instance.GetSerialReceivedDataMAF() == null) return (int)value;
+                        value = Double.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataMAF());
                         break;
                 }
                 

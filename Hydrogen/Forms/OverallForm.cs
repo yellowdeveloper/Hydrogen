@@ -56,15 +56,21 @@ namespace Hydrogen {
 
         private void timer1_Tick(object sender, EventArgs e) {
             header_panel.SetDebugDataText($"{GlobalUIManager.Instance.GetDebugStat()}");
-            string[] series;
+            List<string> series = new List<string>();
 
-            if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.LPF)
-                series = new string[] { "Raw", "LPF" };
-            else if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.AVG)
-                series = new string[] { "Raw", "LPF", "AVG" };
-            else series = new string[] { "Raw" };
+            series.Add("Raw");
+
+            if (GlobalSerialManager.Instance.GetIsSafEnabled())
+                series.Add("SAF");
+
+            if (GlobalSerialManager.Instance.GetIsLpfEnabled())
+                series.Add("LPF");
+
+            if (GlobalSerialManager.Instance.GetIsMafEnabled())
+                series.Add("MAF");
+
             try {
-                this.main_panel.UpdateChart(series);
+                main_panel.UpdateChart(series.ToArray());
             }
             catch (Exception ex) {
                 GlobalLogManager.Instance.ConsoleLog("ERROR", $"Error Occured while Updating Chart{ex}");

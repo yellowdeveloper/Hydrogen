@@ -21,7 +21,7 @@ namespace Hydrogen.UserControls {
         private bool is_mouse_over;
         private SerialManage _serial_manage;
 
-        private DataGridViewRow[] _enabled_rows = new DataGridViewRow[5];
+        private DataGridViewRow[] _enabled_rows = new DataGridViewRow[6];
         public SidePanel() {
             InitializeComponent();
             log_file_name_text_box.Text = GlobalConfigManager.Instance.GetNowLogDefaultFileName();
@@ -32,10 +32,12 @@ namespace Hydrogen.UserControls {
 
             InitializeManager.OnProgramInitialized += InitializeCommands;
             GlobalConfigManager.OnOptionSaved += SaveCommands;
+            GlobalSerialManager.FilterStatusChanged += FilterOff;
 
             this.Disposed += (s, e) => {
                 InitializeManager.OnProgramInitialized -= InitializeCommands;
                 GlobalConfigManager.OnOptionSaved -= SaveCommands;
+                GlobalSerialManager.FilterStatusChanged -= FilterOff;
             };
         }
         public void InitializeSerialManager(SerialManage serial_manage) {
@@ -113,6 +115,8 @@ namespace Hydrogen.UserControls {
         public void AutoCheckChange() {
             checkBox1.Checked = !GlobalLogManager.Instance.GetAutoStopEnabled();
             play_button.Image = Resources.play;
+            rec_state_label.BackColor = Color.White;
+            rec_state_label.ForeColor = Color.DarkGray;
         }
 
         private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e) {
@@ -169,71 +173,115 @@ namespace Hydrogen.UserControls {
                 GlobalUIManager.Instance.SetMaxRaw(0);
                 GlobalUIManager.Instance.SetMinRaw(0);
             }
-            else if (cmd_name.StartsWith("LPF")) {
-                if (_enabled_rows[3] == null) {
+            else if (cmd_name.StartsWith("SAF_")) {
+                if ((_enabled_rows[3] == null)) {
                     byte cmd = Convert.ToByte(cmd_str, 16);
                     _serial_manage.SerialSendCmd(cmd);
 
                     dataGridView2.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
                     _enabled_rows[3] = dataGridView2.Rows[row_index];
 
-                    if (_enabled_rows[4] == null) GlobalSerialManager.Instance.SetFilter(GlobalSerialManager.Filter.LPF);
+                    GlobalSerialManager.Instance.SetIsSafEnabled(true);
+                }
+                else if (_enabled_rows[3] != dataGridView2.Rows[row_index]) {
+                    byte cmd = Convert.ToByte(cmd_str, 16);
+                    _serial_manage.SerialSendCmd(cmd);
+
+                    _enabled_rows[3].Cells[1].Style.BackColor = Color.White;
+                    dataGridView2.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
+                    _enabled_rows[3] = dataGridView2.Rows[row_index];
+
+                    GlobalSerialManager.Instance.SetIsSafEnabled(true);
+                }
+                else {
+                    byte cmd = Convert.ToByte("0x4D", 16);
+                    _serial_manage.SerialSendCmd(cmd);
+
+                    GlobalSerialManager.Instance.SetIsSafEnabled(false);
+                }
+            }
+            else if (cmd_name.StartsWith("LPF")) {
+                if (_enabled_rows[4] == null) {
+                    byte cmd = Convert.ToByte(cmd_str, 16);
+                    _serial_manage.SerialSendCmd(cmd);
+
+                    dataGridView2.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
+                    _enabled_rows[4] = dataGridView2.Rows[row_index];
+
+                    GlobalSerialManager.Instance.SetIsLpfEnabled(true);
                 }
                 else {
                     byte cmd = Convert.ToByte("0xFD", 16);
                     _serial_manage.SerialSendCmd(cmd);
 
-                    _enabled_rows[3].Cells[1].Style.BackColor = Color.White;
-                    if (_enabled_rows[4]!=null) _enabled_rows[4].Cells[1].Style.BackColor = Color.White;
-
-                    _enabled_rows[3] = null;
-                    _enabled_rows[4] = null;
-
-                    GlobalSerialManager.Instance.SetFilter(GlobalSerialManager.Filter.Raw);
+                    GlobalSerialManager.Instance.SetIsLpfEnabled(false);
                 }
             }
-
-            else if (cmd_name.StartsWith("AF_")) {
-                if ((_enabled_rows[4] == null)) {
+            else if (cmd_name.StartsWith("MAF_")) {
+                if ((_enabled_rows[5] == null)) {
                     byte cmd = Convert.ToByte(cmd_str, 16);
                     _serial_manage.SerialSendCmd(cmd);
 
                     dataGridView2.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
-                    _enabled_rows[4] = dataGridView2.Rows[row_index];
-                    GlobalSerialManager.Instance.SetFilter(GlobalSerialManager.Filter.AVG);
+                    _enabled_rows[5] = dataGridView2.Rows[row_index];
+
+                    GlobalSerialManager.Instance.SetIsMafEnabled(true);
                 }
-                else if (_enabled_rows[4] != dataGridView2.Rows[row_index]) {
+                else if (_enabled_rows[5] != dataGridView2.Rows[row_index]) {
                     byte cmd = Convert.ToByte(cmd_str, 16);
                     _serial_manage.SerialSendCmd(cmd);
 
-                    _enabled_rows[4].Cells[1].Style.BackColor = Color.White;
+                    _enabled_rows[5].Cells[1].Style.BackColor = Color.White;
                     dataGridView2.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
-                    _enabled_rows[4] = dataGridView2.Rows[row_index];
-                    GlobalSerialManager.Instance.SetFilter(GlobalSerialManager.Filter.AVG);
+                    _enabled_rows[5] = dataGridView2.Rows[row_index];
+
+                    GlobalSerialManager.Instance.SetIsMafEnabled(true);
                 }
                 else {
                     byte cmd = Convert.ToByte("0x2D", 16);
                     _serial_manage.SerialSendCmd(cmd);
 
-                    _enabled_rows[4].Cells[1].Style.BackColor = Color.White;
-                    _enabled_rows[4] = null;
-                    if (_enabled_rows[3] != null) GlobalSerialManager.Instance.SetFilter(GlobalSerialManager.Filter.LPF);
-                    else GlobalSerialManager.Instance.SetFilter(GlobalSerialManager.Filter.Raw);
+                    GlobalSerialManager.Instance.SetIsMafEnabled(false);
                 }
             }
             else {
+                byte cmd = Convert.ToByte(cmd_str, 16);
+                _serial_manage.SerialSendCmd(cmd);
+            }
+        }
 
+        private void FilterOff(int filter_no) {
+            switch (filter_no)
+            {
+                case 0:
+                    _enabled_rows[3].Cells[1].Style.BackColor = Color.White;
+                    _enabled_rows[3] = null;
+                    break;
+                case 1:
+                    _enabled_rows[4].Cells[1].Style.BackColor = Color.White;
+                    _enabled_rows[4] = null;
+                    break;
+                case 2:
+                    _enabled_rows[5].Cells[1].Style.BackColor = Color.White;
+                    _enabled_rows[5] = null;
+                    break;
+                default:
+                    break;
             }
         }
 
         private void play_button_Click(object sender, EventArgs e) {
             if (!GlobalUIManager.Instance.GetIsTxtLogging()) {
                 play_button.Image = Resources.Stop;
+                rec_state_label.BackColor = Color.IndianRed;
+                rec_state_label.ForeColor = Color.White;
                 GlobalUIManager.Instance.SetIsTxtLogging(true);
                 GlobalLogManager.Instance.OpenDataLogFile();
             }
             else {
                 play_button.Image = Resources.play;
+                rec_state_label.BackColor = Color.White;
+                rec_state_label.ForeColor = Color.DarkGray;
                 GlobalUIManager.Instance.SetIsTxtLogging(false);
                 GlobalLogManager.Instance.CloseDataLogFile();
             }
@@ -323,8 +371,13 @@ namespace Hydrogen.UserControls {
         }
 
         private void auto_stop_check_box_CheckedChanged(object sender, EventArgs e) {
-            if (!GlobalLogManager.Instance.GetAutoStopEnabled()) { GlobalLogManager.Instance.SetAutoStopEnabled(true); }
-            else { GlobalLogManager.Instance.SetAutoStopEnabled(false); }
+            if (!GlobalLogManager.Instance.GetAutoStopEnabled()) {
+                GlobalLogManager.Instance.SetAutoStopEnabled(true);
+            }
+            else {
+                GlobalLogManager.Instance.SetAutoStopEnabled(false);
+                GlobalLogManager.Instance.SetCounter(0);
+            }
             
         }
         private void auto_stop_text_box_MouseHover(object sender, EventArgs e) {

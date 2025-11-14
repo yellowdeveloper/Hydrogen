@@ -20,7 +20,7 @@ namespace Hydrogen.GlobalManagers
             OnProgramInitialized?.Invoke();
         }
         private static void CreateInitConfigFile(string configFilePath) {
-            string DefaultConfig = GlobalConfigManager.Instance.ConvertConfigToString();
+            string DefaultConfig = GlobalConfigManager.Instance.ConvertConfigToStringInit();
             File.WriteAllText(configFilePath, DefaultConfig);
         }
         private static void InitializePaths () {

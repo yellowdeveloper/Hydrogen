@@ -20,9 +20,6 @@ namespace Hydrogen.GlobalManagers {
             initialize();
         }
 
-        private Dictionary<string, string> _data_cmds = new Dictionary<string, string>();
-        private Dictionary<string, string> _ctrl_cmds = new Dictionary<string, string>();
-
         // Config Folder Path
         private string _config_folder_path = @"Config\";
         private string _config_file_name = "init_config.ini";
@@ -109,8 +106,8 @@ namespace Hydrogen.GlobalManagers {
             return log_file_path ?? string.Empty;
         }
 
-
-
+        private Dictionary<string, string> _data_cmds = new Dictionary<string, string>();
+        private Dictionary<string, string> _ctrl_cmds = new Dictionary<string, string>();
         private Dictionary<string, Dictionary<string, string>> _config = new Dictionary<string, Dictionary<string, string>> {
             {
                 "SerialInfo", new Dictionary<string, string> {
@@ -126,10 +123,15 @@ namespace Hydrogen.GlobalManagers {
             {
                 "DataCommandInfo", new Dictionary<string, string> {
                     { "Raw", "-" },
+                    { "SAF_2", "0x0A" },
+                    { "SAF_4", "0x6A" },
+                    { "SAF_8", "0xAA" },
+                    { "SAF_16", "0xCA" },
+                    { "SAF_32", "0xEA" },
                     { "LPF", "0xFA" },
-                    { "AF_2", "0x2A" },
-                    { "AF_4", "0x4A" },
-                    { "AF_8", "0x8A" }
+                    { "MAF_2", "0x2A" },
+                    { "MAF_4", "0x4A" },
+                    { "MAF_8", "0x8A" }
                 }
             },
             { 
@@ -144,12 +146,6 @@ namespace Hydrogen.GlobalManagers {
                     { "Gain32", "0x3A" },
                     { "Gain64", "0x3C" },
                     { "Gain128", "0x3E" },
-                    { "DR45", "0x20" },
-                    { "DR90", "0x40" },
-                    { "DR175", "0x60" },
-                    { "DR330", "0x80" },
-                    { "DR600", "0xA0" },
-                    { "DR1000", "0xC0" }
                 }
             }
         };
@@ -168,12 +164,26 @@ namespace Hydrogen.GlobalManagers {
         public Dictionary<string, Dictionary<string, string>> GetInitConfig() {
             return _config;
         }
-        public string ConvertConfigToString() {
+        public string ConvertConfigToStringInit() {
             StringBuilder sb = new StringBuilder();
 
             foreach (var section in _config) {
                 sb.AppendLine($"[{section.Key}]");
                 foreach (var key in section.Value) {
+                    sb.AppendLine($"{key.Key}={key.Value}");
+                }
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
+        public string ConvertConfigToString() {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var section in _config)
+            {
+                sb.AppendLine($"[{section.Key}]");
+                foreach (var key in section.Value)
+                {
                     sb.AppendLine($"{key.Key}={key.Value}");
                 }
                 sb.AppendLine();

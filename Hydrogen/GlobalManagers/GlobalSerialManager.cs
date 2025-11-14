@@ -11,13 +11,9 @@ namespace Hydrogen.GlobalManagers
         private static readonly GlobalSerialManager _instance = new GlobalSerialManager();
         public static GlobalSerialManager Instance => _instance;
 
-        public enum Filter {
-            Raw,
-            LPF,
-            AVG
-        }
+        public static event Action<int> FilterStatusChanged;
 
-        private string _model_name = "H2Sense01";
+        private string _model_name = "";
         private string _port_name;
         private int _baudrate;
         private int _databits;
@@ -44,21 +40,39 @@ namespace Hydrogen.GlobalManagers
         public void SetDtrEnable(bool dtr_enable) { _dtr_enable = dtr_enable; }
 
         private string _serial_received_data_raw;
+        private string _serial_received_data_saf;
         private string _serial_received_data_lpf;
-        private string _serial_received_data_avg;
+        private string _serial_received_data_maf;
         private bool _is_connected = false;
-        private Filter _filter = Filter.Raw;
+        private bool _is_saf_enabled = false;
+        private bool _is_lpf_enabled = false;
+        private bool _is_maf_enabled = false;
 
 
         public string GetSerialReceivedDataRaw() { return _serial_received_data_raw; }
         public void SetSerialReceivedDataRaw(string serial_received_data_raw) { _serial_received_data_raw = serial_received_data_raw; }
+        public string GetSerialReceivedDataSAF() { return _serial_received_data_saf; }
+        public void SetSerialReceivedDataSAF(string serial_received_data_saf) { _serial_received_data_saf = serial_received_data_saf; }
         public string GetSerialReceivedDataLPF() { return _serial_received_data_lpf; }
         public void SetSerialReceivedDataLPF(string serial_received_data_lpf) { _serial_received_data_lpf = serial_received_data_lpf; }
-        public string GetSerialReceivedDataAVG() { return _serial_received_data_avg; }
-        public void SetSerialReceivedDataAVG(string serial_received_data_avg) { _serial_received_data_avg = serial_received_data_avg; }
+        public string GetSerialReceivedDataMAF() { return _serial_received_data_maf; }
+        public void SetSerialReceivedDataMAF(string serial_received_data_maf) { _serial_received_data_maf = serial_received_data_maf; }
         public bool GetIsConnected() { return _is_connected; }
         public void SetIsConnected(bool is_connected) { _is_connected = is_connected; }
-        public Filter GetFilter() { return _filter; }
-        public void SetFilter(Filter filter) { _filter = filter; }
+        public bool GetIsSafEnabled() { return _is_saf_enabled; }
+        public void SetIsSafEnabled(bool is_saf_enabled) {
+            _is_saf_enabled = is_saf_enabled;
+            if (!is_saf_enabled) FilterStatusChanged?.Invoke(0);
+        }
+        public bool GetIsLpfEnabled() { return _is_lpf_enabled; }
+        public void SetIsLpfEnabled(bool is_lpf_enabled) {
+            _is_lpf_enabled = is_lpf_enabled;
+            if (!is_lpf_enabled) FilterStatusChanged?.Invoke(1);
+        }
+        public bool GetIsMafEnabled() { return _is_maf_enabled; }
+        public void SetIsMafEnabled(bool is_maf_enabled) {
+            _is_maf_enabled = is_maf_enabled;
+            if (!is_maf_enabled) FilterStatusChanged?.Invoke(2);
+        }
     }
 }

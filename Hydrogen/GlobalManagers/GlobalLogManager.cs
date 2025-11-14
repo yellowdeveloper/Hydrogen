@@ -17,8 +17,9 @@ namespace Hydrogen.GlobalManagers
         private static readonly object _logLock = new object();
 
         private bool _auto_stop_enabled = false;
-        private int _auto_stop_count = 100;
+        private int _auto_stop_count = 1;
         private double _counter = 0;
+        private double _now_spent = 0;
 
         public void AddLogToFile(
             string type,
@@ -81,7 +82,7 @@ namespace Hydrogen.GlobalManagers
         }
 
         public void DataValueLog() {
-            if (Instance.GetAutoStopCount() <= Instance.GetCounter()) {
+            if (Instance.GetAutoStopEnabled() && Instance.GetCounter() != 0 && (Instance.GetCounter() <= Instance.GetNowSpent())) {
                 Instance.CloseDataLogFile();
 
                 GlobalUIManager.Instance.SetIsTxtLogging(false);
@@ -92,27 +93,23 @@ namespace Hydrogen.GlobalManagers
                 return;
             }
 
-            string now_time = DateTime.Now.ToString("HH:mm:ssfff");
+            string now_time = DateTime.Now.ToString("yyMMdd_HH:mm:ss");
+            string time_spent = Instance.GetNowSpent().ToString();
             string hydrogen_percent = GlobalUIManager.Instance.GetHydrogenPercent();
 
             string digital_count = GlobalSerialManager.Instance.GetSerialReceivedDataRaw();
+            string saf = "Not Set";
             string lpf = "Not Set";
-            string avg = "Not Set";
+            string maf = "Not Set";
 
             string humidity;
             string temperature;
 
-            GlobalSerialManager.Filter now_filter = GlobalSerialManager.Instance.GetFilter();
+            if (GlobalSerialManager.Instance.GetIsSafEnabled()) saf = GlobalSerialManager.Instance.GetSerialReceivedDataSAF();
+            if (GlobalSerialManager.Instance.GetIsLpfEnabled()) lpf = GlobalSerialManager.Instance.GetSerialReceivedDataLPF();
+            if (GlobalSerialManager.Instance.GetIsMafEnabled()) maf = GlobalSerialManager.Instance.GetSerialReceivedDataMAF();
 
-            if (now_filter == GlobalSerialManager.Filter.LPF) {
-                lpf = GlobalSerialManager.Instance.GetSerialReceivedDataLPF();
-            }
-            else if (now_filter == GlobalSerialManager.Filter.AVG) {
-                lpf = GlobalSerialManager.Instance.GetSerialReceivedDataLPF();
-                avg = GlobalSerialManager.Instance.GetSerialReceivedDataAVG();
-            }
-
-            string data_log = $"{now_time}\t{digital_count}\t{lpf}\t{avg}\t{hydrogen_percent}\n";
+            string data_log = $"{now_time}\t{time_spent}\t{digital_count}\t{saf}\t{lpf}\t{maf}\n";
 
             lock (_logLock) {
                 sw.Write(data_log);
@@ -127,13 +124,22 @@ namespace Hydrogen.GlobalManagers
             fs = new FileStream(log_file_path, FileMode.Append, FileAccess.Write, FileShare.None);
             sw = new StreamWriter(fs);
 
-            sw.Write($"time\traw\tLPF\tAVG\tH2\n");
+            sw.Write($"date/time\ttime spent(ms)\traw\tSAF\tLPF\tMAF\n");
         }
 
         public void CloseDataLogFile() {
-            string log_fin = $"\nAVG\t=AVERAGE(B2:INDEX(B:B, ROW()-2))\nMIN\t=MIN(B2:INDEX(B:B, ROW()-3))\nMAX\t=MAX(B2:INDEX(B:B, ROW()-4))" +
-                $"\nSTDEV\t=STDEV(B2:INDEX(B:B, ROW()-5))\nMIN-MAX DIFF\t=INDEX(B:B, ROW()-2)-INDEX(B:B, ROW()-3)" +
-                $"\n\n=LET(SourceArray, LEFT(A2:INDEX(A:A, ROW()-8), 8), GROUPBY(SourceArray,SourceArray,COUNTA,0,0))";
+            string gain = GlobalUIManager.Instance.GetGain();
+            string dr = GlobalUIManager.Instance.GetDataRate();
+            string h2 = GlobalUIManager.Instance.GetHydrogenPercent();
+            
+
+            string log_fin = $"\n\tAVG\t=AVERAGE(C2:INDEX(C:C, ROW()-2))\t=AVERAGE(D2:INDEX(D:D, ROW()-2))\t=AVERAGE(E2:INDEX(E:E, ROW()-2))" +
+                $"\n\tMIN\t=MIN(C2:INDEX(C:C, ROW()-3))\t=MIN(D2:INDEX(D:D, ROW()-3))\t=MIN(E2:INDEX(E:E, ROW()-3))" +
+                $"\n\tMAX\t=MAX(C2:INDEX(C:C, ROW()-4))\t=MAX(D2:INDEX(D:D, ROW()-4))\t=MAX(E2:INDEX(E:E, ROW()-4))" +
+                $"\n\tSTDEV\t=STDEV(C2:INDEX(C:C, ROW()-5))\t=STDEV(D2:INDEX(D:D, ROW()-5))\t=STDEV(E2:INDEX(E:E, ROW()-5))" +
+                $"\n\tMIN-MAX DIFF\t=INDEX(C:C, ROW()-2)-INDEX(C:C, ROW()-3)\t=INDEX(D:D, ROW()-2)-INDEX(D:D, ROW()-3)\t=INDEX(E:E, ROW()-2)-INDEX(E:E, ROW()-3)" +
+                $"\n\n=LET(SourceArray, A2:INDEX(A:A, ROW()-8), GROUPBY(SourceArray,SourceArray,COUNTA,0,0))\t\t\tGain\t{gain}" +
+                $"\n\t\t\tData Rate\t{dr}\n\t\t\tH2%\t{h2}";
 
             lock (_logLock) {
                 sw.Write(log_fin);
@@ -156,5 +162,7 @@ namespace Hydrogen.GlobalManagers
 
         public double GetCounter() { return _counter; }
         public void SetCounter(double counter) { _counter = counter; }
+        public double GetNowSpent() { return _now_spent; }
+        public void SetNowSpent(double now_spent) { _now_spent = now_spent; }
     }
 }

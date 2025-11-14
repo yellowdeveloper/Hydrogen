@@ -103,13 +103,13 @@ namespace Hydrogen.SerialComm {
                 byte[] buffer = new byte[bytes_to_read];
                 sp.Read(buffer, 0, bytes_to_read);  // Test with tx change to rx later
 
-                //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Bytes Length: {buffer.Length}\n");
-                //GlobalLogManager.Instance.ConsoleLog("OK", $"Received: ");
-                //for (int i = 0; i < buffer.Length; i++)
-                //{
-                //    Console.Write($"{buffer[i]:X2}  ");
-                //}
-                //Console.Write(": ");
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Bytes Length: {buffer.Length}\n");
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Received: ");
+                for (int i = 0; i < buffer.Length; i++)
+                {
+                    Console.Write($"{buffer[i]:X2}  ");
+                }
+                Console.Write(": ");
 
                 Console.Write($"{Encoding.UTF8.GetString(buffer)}\n");
             }
@@ -123,20 +123,26 @@ namespace Hydrogen.SerialComm {
             if (!sp.IsOpen) return;
 
             try {
-                if (GlobalUIManager.Instance.GetIsTxtLogging() && GlobalLogManager.Instance.GetAutoStopEnabled() && GlobalLogManager.Instance.GetCounter() == 0) stopwatch.Start();
-                else if ((!GlobalUIManager.Instance.GetIsTxtLogging() || !GlobalLogManager.Instance.GetAutoStopEnabled()) && GlobalLogManager.Instance.GetCounter() != 0) stopwatch.Reset();
+                if (GlobalUIManager.Instance.GetIsTxtLogging() && GlobalLogManager.Instance.GetNowSpent() == 0) stopwatch.Start();
+                else if (!GlobalUIManager.Instance.GetIsTxtLogging() && GlobalLogManager.Instance.GetNowSpent() != 0) stopwatch.Reset();
 
-                    int bytes_to_read = sp.BytesToRead; // Test with tx change to rx later
+                int bytes_to_read = sp.BytesToRead; // Test with tx change to rx later
                 byte[] buffer = new byte[bytes_to_read];
                 int actually_read = sp.Read(buffer, 0, bytes_to_read);  // Test with tx change to rx later
 
                 if (actually_read > 0) received_buffer.AddRange(buffer.Take(actually_read));
 
-                if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.Raw) ProcessReceivedData_Raw();
-                else if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.LPF) ProcessReceivedData_LPF();
-                else if (GlobalSerialManager.Instance.GetFilter() == GlobalSerialManager.Filter.AVG) ProcessReceivedData_AVG();
+                ProcessReceivedData();
 
-                GlobalLogManager.Instance.SetCounter(stopwatch.Elapsed.TotalMilliseconds);
+                GlobalLogManager.Instance.SetNowSpent(stopwatch.Elapsed.TotalMilliseconds);
+                GlobalLogManager.Instance.ConsoleLog("COM", $"{GlobalLogManager.Instance.GetAutoStopEnabled()}");
+                if (GlobalLogManager.Instance.GetCounter() == 0 && GlobalLogManager.Instance.GetAutoStopEnabled()) {
+                    GlobalLogManager.Instance.ConsoleLog("COM", $"CONDITION GRANT");
+                    GlobalLogManager.Instance.SetCounter(GlobalLogManager.Instance.GetNowSpent() + GlobalLogManager.Instance.GetAutoStopCount()*1000);
+                    GlobalLogManager.Instance.ConsoleLog("COM", $"NOWSPENT: {GlobalLogManager.Instance.GetNowSpent()} COUNT: {GlobalLogManager.Instance.GetCounter()}");
+                }
+                GlobalLogManager.Instance.ConsoleLog("COM", $"NOWSPENT: {GlobalLogManager.Instance.GetNowSpent()} COUNT: {GlobalLogManager.Instance.GetCounter()}");
+
             }
 
             catch (Exception ex) {
@@ -145,7 +151,7 @@ namespace Hydrogen.SerialComm {
             }
         }
 
-        private void ProcessReceivedData_Raw() {
+        private void ProcessReceivedData() {
             while(received_buffer.Count >= 11) {
                 //Check if Header is OK
                 if (!HeaderCheck()) continue;
@@ -156,60 +162,54 @@ namespace Hydrogen.SerialComm {
                 received_buffer.RemoveRange(0, 3);
                 GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (RAW) :: {GlobalSerialManager.Instance.GetSerialReceivedDataRaw()}");
 
+                FilterCheck();
+
                 CalMinMaxDiff(Int32.Parse(dc));
 
                 if (!FooterCheck()) continue;
+
+                if (GlobalSerialManager.Instance.GetIsSafEnabled() && Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataSAF()) == 0) return;
 
                 if (GlobalUIManager.Instance.GetIsTxtLogging()) GlobalLogManager.Instance.DataValueLog();
             }
         }
-        private void ProcessReceivedData_LPF() {
-            while (received_buffer.Count >= 19) {
-                //Check if Header is OK
-                if (!HeaderCheck()) continue;
+        private void FilterCheck() {
+            if (received_buffer[0] == 0) {
+                if (!GlobalSerialManager.Instance.GetIsSafEnabled()) GlobalSerialManager.Instance.SetIsSafEnabled(true);
+                received_buffer.RemoveRange(0, 1);
 
-                string dc = get_digital_count(received_buffer[0], received_buffer[1], received_buffer[2]).ToString();
-
-                GlobalSerialManager.Instance.SetSerialReceivedDataRaw(dc);
-                received_buffer.RemoveRange(0, 3);
-                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (RAW) :: {GlobalSerialManager.Instance.GetSerialReceivedDataRaw()}");
-
-                CalMinMaxDiff(Int32.Parse(dc));
-
-                GlobalSerialManager.Instance.SetSerialReceivedDataLPF(ConvertByteArray(received_buffer.GetRange(0, 8).ToArray()));
-                received_buffer.RemoveRange(0, 8);
-                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (LPF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataLPF()}");
-
-                if (!FooterCheck()) continue;
-
-                if (GlobalUIManager.Instance.GetIsTxtLogging()) GlobalLogManager.Instance.DataValueLog();
+                string buff = ConvertByteArray(received_buffer.GetRange(0, 4).ToArray());
+                if (Int32.Parse(buff) != 0) GlobalSerialManager.Instance.SetSerialReceivedDataSAF(buff);
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (SAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataSAF()}");
+                received_buffer.RemoveRange(0, 4);
             }
-        }
+            else {
+                if (GlobalSerialManager.Instance.GetIsSafEnabled()) GlobalSerialManager.Instance.SetIsSafEnabled(false);
+            }
 
-        private void ProcessReceivedData_AVG() {
-            while (received_buffer.Count >= 27) {
-                //Check if Header is OK
-                if (!HeaderCheck()) continue;
+            if (received_buffer[0] == 1)
+            {
+                if (!GlobalSerialManager.Instance.GetIsLpfEnabled()) GlobalSerialManager.Instance.SetIsLpfEnabled(true);
+                received_buffer.RemoveRange(0, 1);
 
-                string dc = get_digital_count(received_buffer[0], received_buffer[1], received_buffer[2]).ToString();
-
-                GlobalSerialManager.Instance.SetSerialReceivedDataRaw(dc);
-                received_buffer.RemoveRange(0, 3);
-                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (RAW) :: {GlobalSerialManager.Instance.GetSerialReceivedDataRaw()}");
-
-                CalMinMaxDiff(Int32.Parse(dc));
-
-                GlobalSerialManager.Instance.SetSerialReceivedDataLPF(ConvertByteArray(received_buffer.GetRange(0,8).ToArray()));
-                received_buffer.RemoveRange(0, 8);
+                GlobalSerialManager.Instance.SetSerialReceivedDataLPF(ConvertByteArray(received_buffer.GetRange(0, 4).ToArray()));
                 GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (LPF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataLPF()}");
+                received_buffer.RemoveRange(0, 4);
+            }
+            else {
+                if (GlobalSerialManager.Instance.GetIsLpfEnabled()) GlobalSerialManager.Instance.SetIsLpfEnabled(false);
+            }
 
-                GlobalSerialManager.Instance.SetSerialReceivedDataAVG(ConvertByteArray(received_buffer.GetRange(0, 8).ToArray()));
-                received_buffer.RemoveRange(0, 8);
-                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (AVG) :: {GlobalSerialManager.Instance.GetSerialReceivedDataAVG()}");
+            if (received_buffer[0] == 2) {
+                if (!GlobalSerialManager.Instance.GetIsMafEnabled()) GlobalSerialManager.Instance.SetIsMafEnabled(true);
+                received_buffer.RemoveRange(0, 1);
 
-                if (!FooterCheck()) continue;
-
-                if (GlobalUIManager.Instance.GetIsTxtLogging()) GlobalLogManager.Instance.DataValueLog();
+                GlobalSerialManager.Instance.SetSerialReceivedDataMAF(ConvertByteArray(received_buffer.GetRange(0, 4).ToArray()));
+                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (MAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataMAF()}");
+                received_buffer.RemoveRange(0, 4);
+            }
+            else {
+                if (GlobalSerialManager.Instance.GetIsMafEnabled()) GlobalSerialManager.Instance.SetIsMafEnabled(false);
             }
         }
 
@@ -257,7 +257,7 @@ namespace Hydrogen.SerialComm {
         }
 
         private string ConvertByteArray(byte[] val) {
-            string result =  (-BitConverter.ToDouble(val, 0)).ToString("F3");
+            string result =  (-BitConverter.ToInt32(val, 0)).ToString();
             return result;
         }
 
