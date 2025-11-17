@@ -96,6 +96,7 @@ namespace Hydrogen.GlobalManagers
             string now_time = DateTime.Now.ToString("yyMMdd_HH:mm:ss");
             string time_spent = Instance.GetNowSpent().ToString();
             string hydrogen_percent = GlobalUIManager.Instance.GetHydrogenPercent();
+            string gain = GlobalUIManager.Instance.GetGain();
 
             string digital_count = GlobalSerialManager.Instance.GetSerialReceivedDataRaw();
             string saf = "Not Set";
@@ -109,7 +110,7 @@ namespace Hydrogen.GlobalManagers
             if (GlobalSerialManager.Instance.GetIsLpfEnabled()) lpf = GlobalSerialManager.Instance.GetSerialReceivedDataLPF();
             if (GlobalSerialManager.Instance.GetIsMafEnabled()) maf = GlobalSerialManager.Instance.GetSerialReceivedDataMAF();
 
-            string data_log = $"{now_time}\t{time_spent}\t{digital_count}\t{saf}\t{lpf}\t{maf}\n";
+            string data_log = $"{now_time}\t{time_spent}\t{digital_count}\t{saf}\t{lpf}\t{maf}\t{gain}, {hydrogen_percent}\n";
 
             lock (_logLock) {
                 sw.Write(data_log);
@@ -121,25 +122,22 @@ namespace Hydrogen.GlobalManagers
 
             string log_file_path = Path.Combine(GlobalConfigManager.Instance.GetLogFolderPath(), GlobalConfigManager.Instance.GetNowLogFileName());
 
-            fs = new FileStream(log_file_path, FileMode.Append, FileAccess.Write, FileShare.None);
+            fs = new FileStream(log_file_path, FileMode.Append, FileAccess.Write, FileShare.Read);
             sw = new StreamWriter(fs);
 
-            sw.Write($"date/time\ttime spent(ms)\traw\tSAF\tLPF\tMAF\n");
+            sw.Write($"date/time\ttime spent(ms)\traw\tSAF\tLPF\tMAF\tGAIN, H2%\n");
         }
 
         public void CloseDataLogFile() {
-            string gain = GlobalUIManager.Instance.GetGain();
-            string dr = GlobalUIManager.Instance.GetDataRate();
-            string h2 = GlobalUIManager.Instance.GetHydrogenPercent();
             
+            string dr = GlobalUIManager.Instance.GetSampleRate();
 
-            string log_fin = $"\n\tAVG\t=AVERAGE(C2:INDEX(C:C, ROW()-2))\t=AVERAGE(D2:INDEX(D:D, ROW()-2))\t=AVERAGE(E2:INDEX(E:E, ROW()-2))" +
-                $"\n\tMIN\t=MIN(C2:INDEX(C:C, ROW()-3))\t=MIN(D2:INDEX(D:D, ROW()-3))\t=MIN(E2:INDEX(E:E, ROW()-3))" +
-                $"\n\tMAX\t=MAX(C2:INDEX(C:C, ROW()-4))\t=MAX(D2:INDEX(D:D, ROW()-4))\t=MAX(E2:INDEX(E:E, ROW()-4))" +
-                $"\n\tSTDEV\t=STDEV(C2:INDEX(C:C, ROW()-5))\t=STDEV(D2:INDEX(D:D, ROW()-5))\t=STDEV(E2:INDEX(E:E, ROW()-5))" +
-                $"\n\tMIN-MAX DIFF\t=INDEX(C:C, ROW()-2)-INDEX(C:C, ROW()-3)\t=INDEX(D:D, ROW()-2)-INDEX(D:D, ROW()-3)\t=INDEX(E:E, ROW()-2)-INDEX(E:E, ROW()-3)" +
-                $"\n\n=LET(SourceArray, A2:INDEX(A:A, ROW()-8), GROUPBY(SourceArray,SourceArray,COUNTA,0,0))\t\t\tGain\t{gain}" +
-                $"\n\t\t\tData Rate\t{dr}\n\t\t\tH2%\t{h2}";
+            string log_fin = $"\n\tAVG\t=AVERAGE(C2:INDEX(C:C, ROW()-2))\t=AVERAGE(D2:INDEX(D:D, ROW()-2))\t=AVERAGE(E2:INDEX(E:E, ROW()-2))\t=AVERAGE(F2:INDEX(F:F, ROW()-2))" +
+                $"\n\tMIN\t=MIN(C2:INDEX(C:C, ROW()-3))\t=MIN(D2:INDEX(D:D, ROW()-3))\t=MIN(E2:INDEX(E:E, ROW()-3))\t=MIN(F2:INDEX(F:F, ROW()-3))" +
+                $"\n\tMAX\t=MAX(C2:INDEX(C:C, ROW()-4))\t=MAX(D2:INDEX(D:D, ROW()-4))\t=MAX(E2:INDEX(E:E, ROW()-4))\t=MAX(F2:INDEX(F:F, ROW()-4))" +
+                $"\n\tSTDEV\t=STDEV(C2:INDEX(C:C, ROW()-5))\t=STDEV(D2:INDEX(D:D, ROW()-5))\t=STDEV(E2:INDEX(E:E, ROW()-5))\t=STDEV(F2:INDEX(F:F, ROW()-5))" +
+                $"\n\tMIN-MAX DIFF\t=INDEX(C:C, ROW()-2)-INDEX(C:C, ROW()-3)\t=INDEX(D:D, ROW()-2)-INDEX(D:D, ROW()-3)\t=INDEX(E:E, ROW()-2)-INDEX(E:E, ROW()-3)\t=INDEX(F:F, ROW()-2)-INDEX(F:F, ROW()-3)" +
+                $"\n\n=LET(SourceArray, A2:INDEX(A:A, ROW()-8), GROUPBY(SourceArray,SourceArray,COUNTA,0,0))";
 
             lock (_logLock) {
                 sw.Write(log_fin);

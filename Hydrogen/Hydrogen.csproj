@@ -164,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\fydlogo.ico" />
+    <Content Include="Resources\Reload.png" />
     <None Include="Resources\fydlogo1.png" />
     <None Include="Resources\Setup.png" />
     <None Include="Resources\play.png" />

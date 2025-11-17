@@ -18,7 +18,7 @@ namespace Hydrogen.GlobalManagers
         private double _y_scale = 100.0f;     // %
         private string _hydrogen_percent = "1";
         private string _gain = "1";
-        private string _data_rate = "30";
+        private string _sample_rate = "1";
         private bool _is_graph_logging = false;
         private bool _is_txt_logging = false;
         private bool _is_axis_y_locked = false;
@@ -62,8 +62,8 @@ namespace Hydrogen.GlobalManagers
         public string GetGain() { return _gain; }
         public void SetGain(string gain) { _gain = gain; }
 
-        public string GetDataRate() { return _data_rate; }
-        public void SetDataRate(string data_rate) { _data_rate = data_rate; }
+        public string GetSampleRate() { return _sample_rate; }
+        public void SetSampleRate(string sample_rate) { _sample_rate = sample_rate; }
 
 
         public void DrawRectangle(Color color, TableLayoutCellPaintEventArgs e) {

@@ -33,6 +33,14 @@ namespace Hydrogen.UserControls
             chart1.Series["Raw"].LegendText = "Raw: #LAST{N0}";
         }
 
+        private void pictureBox2_Click(object sender, EventArgs e) {
+            GlobalLogManager.Instance.ConsoleLog("OK", $"chart1.Series.Count: {chart1.Series.Count}");
+            chart1.Series.Clear();
+            AddNewSeriesToChart("Raw");
+
+            time = 0;
+        }
+
         /// <summary>
         /// 그래프 로깅 시작 버튼 구현
         /// </summary>
@@ -140,7 +148,7 @@ namespace Hydrogen.UserControls
         }
 
         private void RemoveSeriesFromChart(int cnt) {
-            for (int i = chart1.Series.Count - 1; i > 0; i--) {
+            for (int i = cnt; i > 0; i--) {
                 chart1.Series.RemoveAt(i);
             }
         }

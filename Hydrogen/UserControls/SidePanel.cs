@@ -164,11 +164,14 @@ namespace Hydrogen.UserControls {
                 if (_enabled_rows[2] == null) {
                     dataGridView1.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
                     _enabled_rows[2] = dataGridView1.Rows[row_index];
+                    GlobalUIManager.Instance.SetGain(cmd_name.Substring(4));
+                    GlobalLogManager.Instance.ConsoleLog("COM", $"Gain Set To {GlobalUIManager.Instance.GetGain()}");
                 }
                 else {
                     _enabled_rows[2].Cells[1].Style.BackColor = Color.White;
                     dataGridView1.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
                     _enabled_rows[2] = dataGridView1.Rows[row_index];
+                    GlobalUIManager.Instance.SetGain(cmd_name.Substring(4));
                 }
                 GlobalUIManager.Instance.SetMaxRaw(0);
                 GlobalUIManager.Instance.SetMinRaw(0);
@@ -182,6 +185,7 @@ namespace Hydrogen.UserControls {
                     _enabled_rows[3] = dataGridView2.Rows[row_index];
 
                     GlobalSerialManager.Instance.SetIsSafEnabled(true);
+                    GlobalUIManager.Instance.SetSampleRate(cmd_name.Substring(4));
                 }
                 else if (_enabled_rows[3] != dataGridView2.Rows[row_index]) {
                     byte cmd = Convert.ToByte(cmd_str, 16);
@@ -192,6 +196,7 @@ namespace Hydrogen.UserControls {
                     _enabled_rows[3] = dataGridView2.Rows[row_index];
 
                     GlobalSerialManager.Instance.SetIsSafEnabled(true);
+                    GlobalUIManager.Instance.SetSampleRate(cmd_name.Substring(4));
                 }
                 else {
                     byte cmd = Convert.ToByte("0x4D", 16);
@@ -243,10 +248,6 @@ namespace Hydrogen.UserControls {
 
                     GlobalSerialManager.Instance.SetIsMafEnabled(false);
                 }
-            }
-            else {
-                byte cmd = Convert.ToByte(cmd_str, 16);
-                _serial_manage.SerialSendCmd(cmd);
             }
         }
 
