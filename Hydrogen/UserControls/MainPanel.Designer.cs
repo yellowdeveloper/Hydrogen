@@ -28,19 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.y_scale_text_box = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.x_scale_label = new System.Windows.Forms.Label();
             this.y_scale_label = new System.Windows.Forms.Label();
             this.x_scale_text_box = new System.Windows.Forms.TextBox();
             this.y_scale_lock_check_box = new System.Windows.Forms.CheckBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
@@ -68,31 +68,36 @@
             // 
             // chart1
             // 
-            chartArea3.AxisX.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea3.AxisX.MajorGrid.Enabled = false;
-            chartArea3.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea3.AxisX.MajorTickMark.Enabled = false;
-            chartArea3.AxisX.MajorTickMark.LineColor = System.Drawing.Color.WhiteSmoke;
-            chartArea3.AxisY.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea3.AxisY.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.NotSet;
-            chartArea3.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea3.AxisY.MajorTickMark.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea3.Name = "Raw";
-            this.chart1.ChartAreas.Add(chartArea3);
+            chartArea1.AxisX.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.AxisX.LogarithmBase = 100D;
+            chartArea1.AxisX.MajorGrid.Enabled = false;
+            chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.AxisX.MajorTickMark.Enabled = false;
+            chartArea1.AxisX.MajorTickMark.LineColor = System.Drawing.Color.WhiteSmoke;
+            chartArea1.AxisX.MinorTickMark.Enabled = true;
+            chartArea1.AxisX.MinorTickMark.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.AxisX.MinorTickMark.TickMarkStyle = System.Windows.Forms.DataVisualization.Charting.TickMarkStyle.AcrossAxis;
+            chartArea1.AxisY.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.AxisY.MajorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash;
+            chartArea1.AxisY.MajorTickMark.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea1.AxisY.MajorTickMark.TickMarkStyle = System.Windows.Forms.DataVisualization.Charting.TickMarkStyle.AcrossAxis;
+            chartArea1.Name = "Raw";
+            this.chart1.ChartAreas.Add(chartArea1);
             this.chart1.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend3.DockedToChartArea = "Raw";
-            legend3.Name = "Legend1";
-            this.chart1.Legends.Add(legend3);
+            legend1.DockedToChartArea = "Raw";
+            legend1.Name = "Legend1";
+            this.chart1.Legends.Add(legend1);
             this.chart1.Location = new System.Drawing.Point(2, 24);
             this.chart1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 2);
             this.chart1.Name = "chart1";
-            series3.BorderWidth = 2;
-            series3.ChartArea = "Raw";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series3.Color = System.Drawing.Color.DeepSkyBlue;
-            series3.Legend = "Legend1";
-            series3.Name = "Raw";
-            this.chart1.Series.Add(series3);
+            this.chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.None;
+            series1.BorderWidth = 2;
+            series1.ChartArea = "Raw";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series1.Legend = "Legend1";
+            series1.Name = "Raw";
+            this.chart1.Series.Add(series1);
             this.chart1.Size = new System.Drawing.Size(1072, 599);
             this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
@@ -158,6 +163,23 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "Result Graph";
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.pictureBox1.Image = global::Hydrogen.Properties.Resources.play;
+            this.pictureBox1.Location = new System.Drawing.Point(106, 3);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(14, 14);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 2;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
+            this.pictureBox1.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
+            this.pictureBox1.MouseHover += new System.EventHandler(this.img_button_MouseHover);
+            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
+            // 
             // x_scale_label
             // 
             this.x_scale_label.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -209,23 +231,6 @@
             this.y_scale_lock_check_box.Text = "Lock";
             this.y_scale_lock_check_box.UseVisualStyleBackColor = true;
             this.y_scale_lock_check_box.CheckedChanged += new System.EventHandler(this.y_scale_lock_check_box_CheckedChanged);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.pictureBox1.Image = global::Hydrogen.Properties.Resources.play;
-            this.pictureBox1.Location = new System.Drawing.Point(106, 3);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(14, 14);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 2;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
-            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseDown);
-            this.pictureBox1.MouseLeave += new System.EventHandler(this.img_button_MouseLeave);
-            this.pictureBox1.MouseHover += new System.EventHandler(this.img_button_MouseHover);
-            this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
             // 
             // pictureBox2
             // 

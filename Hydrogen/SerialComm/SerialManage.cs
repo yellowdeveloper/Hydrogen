@@ -83,15 +83,15 @@ namespace Hydrogen.SerialComm {
             }
         }
 
-        public void SerialSendCmd(byte cmd) {
+        public void SerialSendCmd(byte cmd, byte op) {
             // HEADER = 0x09, 0x0D, 0x09, 0x0D
             // FOOTER = 0x27, 0x22, 0x27, 0x22
-            byte[] buffer = { 0x09, 0x0D, 0x09, 0x0D, cmd, 0x27, 0x22, 0x27, 0x22 };
+            byte[] buffer = { 0x09, 0x0D, 0x09, 0x0D, cmd, op, 0x27, 0x22, 0x27, 0x22 };
 
-            sp.Write(buffer, 0, 9);
+            sp.Write(buffer, 0, 10);
 
-            GlobalLogManager.Instance.ConsoleLog("OK", $"Sent Command : 0x{cmd:X2}");
-            GlobalLogManager.Instance.AddLogToFile("DEBUG", $"Sent Command : 0x{cmd:X2}");
+            GlobalLogManager.Instance.ConsoleLog("OK", $"Sent Command : 0x{cmd:X2} | 0x{op:X2}");
+            GlobalLogManager.Instance.AddLogToFile("DEBUG", $"Sent Command : 0x{cmd:X2} | 0x{op:X2}");
         }
 
         private void SerialReceivedDebug(object s, SerialDataReceivedEventArgs e) {

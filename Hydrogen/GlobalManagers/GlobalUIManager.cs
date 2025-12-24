@@ -25,6 +25,7 @@ namespace Hydrogen.GlobalManagers
         private int _max_raw = 0;
         private int _min_raw = 0;
         private int _min_max_diff = 0;
+        private int _interval_x_sum = 0;
 
         public string GetDebugStat() { return _debug_stat; }
         public void SetDebugStat(string debug_stat) { _debug_stat = debug_stat; }
@@ -58,6 +59,9 @@ namespace Hydrogen.GlobalManagers
 
         public int GetDiffRaw() { return _min_max_diff; }
         public void SetDiffRaw(int min_max_diff) { _min_max_diff = min_max_diff; }
+
+        public int GetIntervalXSum() { return _interval_x_sum; }
+        public void SetIntervalXSum(int interval_x_sum) { _interval_x_sum = interval_x_sum; }
 
         public string GetGain() { return _gain; }
         public void SetGain(string gain) { _gain = gain; }

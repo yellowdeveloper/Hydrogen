@@ -18,6 +18,10 @@ using static System.Collections.Specialized.BitVector32;
 namespace Hydrogen.UserControls {
     public partial class SidePanel : UserControl {
 
+        private const byte filter_en = 0xFA;
+        private const byte filter_dis = 0xFD;
+        private const byte ctrl_en = 0xCA;
+
         private bool is_mouse_over;
         private SerialManage _serial_manage;
 
@@ -99,7 +103,7 @@ namespace Hydrogen.UserControls {
                     cmd_name = dataGridView1[0, e.RowIndex].Value.ToString();
 
                     byte cmd = Convert.ToByte(cmd_str, 16);
-                    _serial_manage.SerialSendCmd(cmd);
+                    _serial_manage.SerialSendCmd(ctrl_en, cmd);
 
                     CheckCommand(cmd_name, cmd_str, e.RowIndex);
 
@@ -179,7 +183,7 @@ namespace Hydrogen.UserControls {
             else if (cmd_name.StartsWith("SAF_")) {
                 if ((_enabled_rows[3] == null)) {
                     byte cmd = Convert.ToByte(cmd_str, 16);
-                    _serial_manage.SerialSendCmd(cmd);
+                    _serial_manage.SerialSendCmd(filter_en, cmd);
 
                     dataGridView2.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
                     _enabled_rows[3] = dataGridView2.Rows[row_index];
@@ -189,7 +193,7 @@ namespace Hydrogen.UserControls {
                 }
                 else if (_enabled_rows[3] != dataGridView2.Rows[row_index]) {
                     byte cmd = Convert.ToByte(cmd_str, 16);
-                    _serial_manage.SerialSendCmd(cmd);
+                    _serial_manage.SerialSendCmd(filter_en, cmd);
 
                     _enabled_rows[3].Cells[1].Style.BackColor = Color.White;
                     dataGridView2.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
@@ -200,7 +204,7 @@ namespace Hydrogen.UserControls {
                 }
                 else {
                     byte cmd = Convert.ToByte("0x4D", 16);
-                    _serial_manage.SerialSendCmd(cmd);
+                    _serial_manage.SerialSendCmd(filter_dis, cmd);
 
                     GlobalSerialManager.Instance.SetIsSafEnabled(false);
                 }
@@ -208,7 +212,7 @@ namespace Hydrogen.UserControls {
             else if (cmd_name.StartsWith("LPF")) {
                 if (_enabled_rows[4] == null) {
                     byte cmd = Convert.ToByte(cmd_str, 16);
-                    _serial_manage.SerialSendCmd(cmd);
+                    _serial_manage.SerialSendCmd(filter_en,cmd);
 
                     dataGridView2.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
                     _enabled_rows[4] = dataGridView2.Rows[row_index];
@@ -217,7 +221,7 @@ namespace Hydrogen.UserControls {
                 }
                 else {
                     byte cmd = Convert.ToByte("0xFD", 16);
-                    _serial_manage.SerialSendCmd(cmd);
+                    _serial_manage.SerialSendCmd(filter_dis, cmd);
 
                     GlobalSerialManager.Instance.SetIsLpfEnabled(false);
                 }
@@ -225,7 +229,7 @@ namespace Hydrogen.UserControls {
             else if (cmd_name.StartsWith("MAF_")) {
                 if ((_enabled_rows[5] == null)) {
                     byte cmd = Convert.ToByte(cmd_str, 16);
-                    _serial_manage.SerialSendCmd(cmd);
+                    _serial_manage.SerialSendCmd(filter_en, cmd);
 
                     dataGridView2.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
                     _enabled_rows[5] = dataGridView2.Rows[row_index];
@@ -234,7 +238,7 @@ namespace Hydrogen.UserControls {
                 }
                 else if (_enabled_rows[5] != dataGridView2.Rows[row_index]) {
                     byte cmd = Convert.ToByte(cmd_str, 16);
-                    _serial_manage.SerialSendCmd(cmd);
+                    _serial_manage.SerialSendCmd(filter_en, cmd);
 
                     _enabled_rows[5].Cells[1].Style.BackColor = Color.White;
                     dataGridView2.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
@@ -244,7 +248,7 @@ namespace Hydrogen.UserControls {
                 }
                 else {
                     byte cmd = Convert.ToByte("0x2D", 16);
-                    _serial_manage.SerialSendCmd(cmd);
+                    _serial_manage.SerialSendCmd(filter_dis, cmd);
 
                     GlobalSerialManager.Instance.SetIsMafEnabled(false);
                 }

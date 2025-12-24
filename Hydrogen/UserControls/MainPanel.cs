@@ -25,12 +25,26 @@ namespace Hydrogen.UserControls
         private const int dc_max = 8388608;
         private const int dc_min = -8388608;
 
+        private int count = 0;
+
         public MainPanel() {
             InitializeComponent();
             chart1.ChartAreas["Raw"].AxisX.LabelStyle.Format = "F1";
             chart1.ChartAreas["Raw"].AxisY.LabelStyle.Format = "F1";
 
             chart1.Series["Raw"].LegendText = "Raw: #LAST{N0}";
+
+            Color[] myCustomColors = new Color[]
+            {
+                Color.DeepSkyBlue,
+                Color.Red,
+                Color.Orange,
+                Color.LawnGreen
+            };
+
+            chart1.PaletteCustomColors = myCustomColors;
+
+            chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.None;
         }
 
         private void pictureBox2_Click(object sender, EventArgs e) {
@@ -140,7 +154,7 @@ namespace Hydrogen.UserControls
         private void AddNewSeriesToChart(string series_name) {
             if (!SeriesExists(series_name)) {
                 chart1.Series.Add(series_name);
-                chart1.Series[series_name].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+                chart1.Series[series_name].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
                 chart1.Series[series_name].BorderWidth = 2;
 
                 chart1.Series[series_name].LegendText = $"{series_name}: " + "#LAST{N0}";
@@ -184,7 +198,9 @@ namespace Hydrogen.UserControls
 
             UpdateChartAreaX(series[0]);
             if (GlobalUIManager.Instance.GetIsAxisYLocked()) return;
-            UpdateChartAreaY(series[0], value);
+            //UpdateChartAreaY(series[0], value);
+            int avg = CalAverage(value);
+            UpdateChartAreaY(series[0], avg);
         }
 
         private int AddValueToChart(string series) {
@@ -232,6 +248,7 @@ namespace Hydrogen.UserControls
         }
 
         private void UpdateChartAreaY(string series, double value) {
+
             if (value == 0) value = 1000;
 
             double y_max = (value > 0) ? dc_max : dc_min;
@@ -251,6 +268,17 @@ namespace Hydrogen.UserControls
             {
                 GlobalLogManager.Instance.ConsoleLog("ERROR", $"{ex}");
             }
+        }
+
+        private int CalAverage(int value) {
+            int sum = GlobalUIManager.Instance.GetIntervalXSum();
+            if (count >= GlobalUIManager.Instance.GetXScale() * 10) { sum = 0; }
+            if (sum == 0) count = 0;
+            sum += value;
+            count++;
+            int avg = sum / count;
+            GlobalUIManager.Instance.SetIntervalXSum(sum);
+            return avg;
         }
 
         private void AddInfoToChartTitle(string name, string value) {
