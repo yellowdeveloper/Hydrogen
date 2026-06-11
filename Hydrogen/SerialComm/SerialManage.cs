@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms.VisualStyles;
@@ -17,6 +18,8 @@ namespace Hydrogen.SerialComm {
         Stopwatch stopwatch = new Stopwatch();
 
         private List<byte> received_buffer = new List<byte>();
+        private bool is_processing = false;
+        private int num_filters = 0;
 
         public int SerialConnect() {
             sp.PortName = GlobalSerialManager.Instance.GetPortName();
@@ -152,9 +155,9 @@ namespace Hydrogen.SerialComm {
         }
 
         private void ProcessReceivedData() {
-            while(received_buffer.Count >= 11) {
+            while(received_buffer.Count >= 12) {
                 //Check if Header is OK
-                if (!HeaderCheck()) continue;
+                if (!ValidityCheck()) continue;
 
                 string dc = get_digital_count(received_buffer[0], received_buffer[1], received_buffer[2]).ToString();
 
@@ -166,14 +169,15 @@ namespace Hydrogen.SerialComm {
 
                 CalMinMaxDiff(Int32.Parse(dc));
 
-                if (!FooterCheck()) continue;
-
                 if (GlobalSerialManager.Instance.GetIsSafEnabled() && Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataSAF()) == 0) return;
 
                 if (GlobalUIManager.Instance.GetIsTxtLogging()) GlobalLogManager.Instance.DataValueLog();
+
+                is_processing = false;
             }
         }
         private void FilterCheck() {
+            if (num_filters == 0) return;
             if (received_buffer[0] == 0) {
                 if (!GlobalSerialManager.Instance.GetIsSafEnabled()) GlobalSerialManager.Instance.SetIsSafEnabled(true);
                 received_buffer.RemoveRange(0, 1);
@@ -187,6 +191,7 @@ namespace Hydrogen.SerialComm {
                 if (GlobalSerialManager.Instance.GetIsSafEnabled()) GlobalSerialManager.Instance.SetIsSafEnabled(false);
             }
 
+            if (num_filters == 1) return;
             if (received_buffer[0] == 1)
             {
                 if (!GlobalSerialManager.Instance.GetIsLpfEnabled()) GlobalSerialManager.Instance.SetIsLpfEnabled(true);
@@ -200,6 +205,7 @@ namespace Hydrogen.SerialComm {
                 if (GlobalSerialManager.Instance.GetIsLpfEnabled()) GlobalSerialManager.Instance.SetIsLpfEnabled(false);
             }
 
+            if (num_filters == 2) return;
             if (received_buffer[0] == 2) {
                 if (!GlobalSerialManager.Instance.GetIsMafEnabled()) GlobalSerialManager.Instance.SetIsMafEnabled(true);
                 received_buffer.RemoveRange(0, 1);
@@ -213,47 +219,62 @@ namespace Hydrogen.SerialComm {
             }
         }
 
-        private bool HeaderCheck() {
+        private bool ValidityCheck() {
+            bool header_ok = false;
+            bool footer_ok = false;
+            int data_length = 0;
+            byte crc = 0;
+
             if (received_buffer[0] == 0x09 && received_buffer[1] == 0x0D && received_buffer[2] == 0x09 && received_buffer[3] == 0x0D) {
                 received_buffer.RemoveRange(0, 4);
                 GlobalLogManager.Instance.ConsoleLog("OK", "Received Right Header :: 0x09 0x0D 0x09 0x0D Remove From Buffer");
                 GlobalLogManager.Instance.AddLogToFile("DEBUG", "Received Right Header :: 0x09 0x0D 0x09 0x0D Remove From Buffer");
-                return true;
-            }
-            else {
-                GlobalLogManager.Instance.ConsoleLog("ERROR", $"Wrong Header :: Contents in Buffer ::");
-                GlobalLogManager.Instance.AddLogToFile("ERROR", $"Wrong Header :: Erase First Byte in Buffer And Process");
 
-                for (int i = 0; i < received_buffer.Count; i++) {
-                    Console.Write($"{received_buffer[i]:X2}  ");
+                is_processing = true;
+
+                header_ok =  true;
+            }
+
+            if (header_ok) {
+                data_length = received_buffer[0];
+                received_buffer.RemoveRange(0, 1);
+
+                if (received_buffer[data_length + 1] == 0x27 && received_buffer[data_length + 2] == 0x22 && received_buffer[data_length + 3] == 0x27 && received_buffer[data_length + 4] == 0x22) {
+                    received_buffer.RemoveRange(data_length + 1, 4);
+                    GlobalLogManager.Instance.ConsoleLog("OK", "Received Right Footer :: 0x22 0x27 0x22 0x27 Remove From Buffer");
+                    GlobalLogManager.Instance.AddLogToFile("DEBUG", "Received Right Footer :: 0x22 0x27 0x22 0x27 Remove From Buffer");
+
+                    footer_ok = true;
                 }
-
-                Console.Write("Erase First Byte in Buffer And Process\n");
-                received_buffer.RemoveAt(0);
-                return false;
             }
-        }
 
-        private bool FooterCheck() {
-            if (received_buffer[0] == 0x27 && received_buffer[1] == 0x22 && received_buffer[2] == 0x27 && received_buffer[3] == 0x22) {
-                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Right Footer :: 0x27 0x22 0x27 0x22 Remove From Buffer\n");
-                received_buffer.RemoveRange(0, 4);
-                //GlobalLogManager.Instance.ConsoleLog($"Received Right Footer :: {received_buffer[0]:X2} 0x0A 0x0D 0x0A Remove From Buffer");
-                GlobalLogManager.Instance.AddLogToFile("DEBUG", "Received Right Footer :: 0x27 0x22 0x27 0x22 Remove From Buffer");
-                return true;
-            }
-            else {
-                GlobalLogManager.Instance.ConsoleLog("ERROR", $"Wrong Footer :: Contents in Buffer :: ");
-                GlobalLogManager.Instance.AddLogToFile("ERROR", $"Wrong Footer :: Erase First Byte in Buffer And Process");
+            if (footer_ok) {
+                crc = CalCRC(received_buffer.GetRange(0, data_length).ToArray());
+                if (crc == received_buffer[data_length])
+                {
+                    GlobalLogManager.Instance.ConsoleLog("OK", $"CRC OK :: {crc:X2}");
+                    received_buffer.RemoveRange(data_length, 1);
 
-                for (int i = 0; i < received_buffer.Count; i++) {
-                    Console.Write($"{received_buffer[i]:X2}  ");
+                    num_filters = data_length / 5;
+
+                    return true;
                 }
-
-                Console.Write(" Erase First Byte in Buffer And Process\n");
-                received_buffer.RemoveAt(0);
-                return false;
+                GlobalLogManager.Instance.ConsoleLog("OK", $"CRC BAD :: {crc:X2}, {received_buffer[data_length]:X2}");
             }
+
+            GlobalLogManager.Instance.ConsoleLog("ERROR", $"Invalid Data :: Contents in Buffer ::");
+            GlobalLogManager.Instance.AddLogToFile("ERROR", $"Wrong Header :: Erase First Byte in Buffer And Process");
+
+            for (int i = 0; i < received_buffer.Count; i++) {
+                Console.Write($"{received_buffer[i]:X2}  ");
+            }
+
+            Console.Write("Erase Buffer And Process\n");
+            received_buffer.Clear();
+
+            is_processing = false;
+
+            return false;
         }
 
         private string ConvertByteArray(byte[] val) {
@@ -285,6 +306,25 @@ namespace Hydrogen.SerialComm {
             dc = dc << 8;
             dc = dc >> 8;
             return -dc;
+        }
+
+        private byte CalCRC(byte[] byte_array)
+        {
+            byte crc = 0x00;
+            byte poly = 0x07;
+
+            for (int i = 0; i < byte_array.Length; i++)
+            {
+                crc ^= byte_array[i];
+
+                for (int bit = 0; bit < 8; bit++)
+                {
+                    if ((crc & 0x80) == 0x80) crc = (byte)(crc << 1 ^ poly);
+                    else crc = (byte)(crc << 1);
+                }
+            }
+
+            return crc;
         }
     }
 }
