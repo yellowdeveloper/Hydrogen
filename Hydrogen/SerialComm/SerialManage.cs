@@ -177,7 +177,8 @@ namespace Hydrogen.SerialComm {
             }
         }
         private void FilterCheck() {
-            if (num_filters == 0) return;
+            if (num_filters <= 0) return;
+
             if (received_buffer[0] == 0) {
                 if (!GlobalSerialManager.Instance.GetIsSafEnabled()) GlobalSerialManager.Instance.SetIsSafEnabled(true);
                 received_buffer.RemoveRange(0, 1);
@@ -186,12 +187,14 @@ namespace Hydrogen.SerialComm {
                 if (Int32.Parse(buff) != 0) GlobalSerialManager.Instance.SetSerialReceivedDataSAF(buff);
                 GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (SAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataSAF()}");
                 received_buffer.RemoveRange(0, 4);
+
+                num_filters--;
             }
             else {
                 if (GlobalSerialManager.Instance.GetIsSafEnabled()) GlobalSerialManager.Instance.SetIsSafEnabled(false);
             }
 
-            if (num_filters == 1) return;
+            if (num_filters <= 0) return;
             if (received_buffer[0] == 1)
             {
                 if (!GlobalSerialManager.Instance.GetIsLpfEnabled()) GlobalSerialManager.Instance.SetIsLpfEnabled(true);
@@ -200,12 +203,14 @@ namespace Hydrogen.SerialComm {
                 GlobalSerialManager.Instance.SetSerialReceivedDataLPF(ConvertByteArray(received_buffer.GetRange(0, 4).ToArray()));
                 GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (LPF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataLPF()}");
                 received_buffer.RemoveRange(0, 4);
+
+                num_filters--;
             }
             else {
                 if (GlobalSerialManager.Instance.GetIsLpfEnabled()) GlobalSerialManager.Instance.SetIsLpfEnabled(false);
             }
 
-            if (num_filters == 2) return;
+            if (num_filters <= 0) return;
             if (received_buffer[0] == 2) {
                 if (!GlobalSerialManager.Instance.GetIsMafEnabled()) GlobalSerialManager.Instance.SetIsMafEnabled(true);
                 received_buffer.RemoveRange(0, 1);
@@ -213,6 +218,8 @@ namespace Hydrogen.SerialComm {
                 GlobalSerialManager.Instance.SetSerialReceivedDataMAF(ConvertByteArray(received_buffer.GetRange(0, 4).ToArray()));
                 GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (MAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataMAF()}");
                 received_buffer.RemoveRange(0, 4);
+
+                num_filters--;
             }
             else {
                 if (GlobalSerialManager.Instance.GetIsMafEnabled()) GlobalSerialManager.Instance.SetIsMafEnabled(false);
@@ -262,8 +269,8 @@ namespace Hydrogen.SerialComm {
                 GlobalLogManager.Instance.ConsoleLog("OK", $"CRC BAD :: {crc:X2}, {received_buffer[data_length]:X2}");
             }
 
-            GlobalLogManager.Instance.ConsoleLog("ERROR", $"Invalid Data :: Contents in Buffer ::");
-            GlobalLogManager.Instance.AddLogToFile("ERROR", $"Wrong Header :: Erase First Byte in Buffer And Process");
+            GlobalLogManager.Instance.ConsoleLog("ERROR", $"Invalid Data (Header: {header_ok}, Footer: {footer_ok} ) :: Contents in Buffer ::");
+            GlobalLogManager.Instance.AddLogToFile("ERROR", $"Invalid Data :: Contents in Buffer ::");
 
             for (int i = 0; i < received_buffer.Count; i++) {
                 Console.Write($"{received_buffer[i]:X2}  ");
