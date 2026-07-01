@@ -149,6 +149,7 @@
     <EmbeddedResource Include="UserControls\SidePanel.resx">
       <DependentUpon>SidePanel.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="Ext\build.bat" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -166,6 +167,7 @@
     <None Include="Resources\fydlogo.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Ext\main.c" />
     <Content Include="Resources\fydlogo.ico" />
     <Content Include="Resources\Reload.png" />
     <None Include="Resources\fydlogo1.png" />
@@ -190,5 +192,10 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
+  <Target Name="BuildNativeTool" AfterTargets="Build">
+
+    <Exec Command="&quot;$(ProjectDir)Ext\build.bat&quot; $(Configuration)" />
+
+  </Target>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

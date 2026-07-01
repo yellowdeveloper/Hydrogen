@@ -46,6 +46,7 @@ namespace Hydrogen
             this.maximize_button = new System.Windows.Forms.Button();
             this.close_button = new System.Windows.Forms.Button();
             this.form_title = new System.Windows.Forms.Label();
+            this.calib_button = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -149,18 +150,20 @@ namespace Hydrogen
             // tableLayoutPanel4
             // 
             this.tableLayoutPanel4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(77)))), ((int)(((byte)(128)))));
-            this.tableLayoutPanel4.ColumnCount = 6;
+            this.tableLayoutPanel4.ColumnCount = 7;
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 558F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel4.Controls.Add(this.form_icon, 0, 0);
-            this.tableLayoutPanel4.Controls.Add(this.minimize_button, 3, 0);
-            this.tableLayoutPanel4.Controls.Add(this.maximize_button, 4, 0);
-            this.tableLayoutPanel4.Controls.Add(this.close_button, 5, 0);
+            this.tableLayoutPanel4.Controls.Add(this.minimize_button, 4, 0);
+            this.tableLayoutPanel4.Controls.Add(this.maximize_button, 5, 0);
+            this.tableLayoutPanel4.Controls.Add(this.close_button, 6, 0);
             this.tableLayoutPanel4.Controls.Add(this.form_title, 1, 0);
+            this.tableLayoutPanel4.Controls.Add(this.calib_button, 3, 0);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(0);
@@ -242,6 +245,21 @@ namespace Hydrogen
             this.form_title.Text = "Hydrogen Sense";
             this.form_title.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // calib_button
+            // 
+            this.calib_button.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.calib_button.FlatAppearance.BorderSize = 0;
+            this.calib_button.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.calib_button.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.calib_button.ForeColor = System.Drawing.Color.White;
+            this.calib_button.Location = new System.Drawing.Point(1161, 3);
+            this.calib_button.Name = "calib_button";
+            this.calib_button.Size = new System.Drawing.Size(24, 24);
+            this.calib_button.TabIndex = 5;
+            this.calib_button.Text = "C";
+            this.calib_button.UseVisualStyleBackColor = true;
+            this.calib_button.Click += new System.EventHandler(this.calib_button_Click);
+            // 
             // OverallForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -280,6 +298,7 @@ namespace Hydrogen
         private System.Windows.Forms.Button maximize_button;
         private System.Windows.Forms.Button close_button;
         private System.Windows.Forms.Label form_title;
+        private System.Windows.Forms.Button calib_button;
     }
 }
 

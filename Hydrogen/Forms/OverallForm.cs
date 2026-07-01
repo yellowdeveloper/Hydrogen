@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -112,6 +113,29 @@ namespace Hydrogen {
 
         private void close_button_Click(object sender, EventArgs e) {
             this.Close();
+        }
+
+        private void calib_button_Click(object sender, EventArgs e)
+        {
+            string exePath =
+            Path.Combine(
+                Application.StartupPath,
+                "calibration.exe"
+            );
+
+            if (File.Exists(exePath))
+            {
+                System.Diagnostics.Process.Start(
+                    new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = exePath,
+                        UseShellExecute = true
+                    });
+            }
+            else
+            {
+                MessageBox.Show("Calibration 프로그램이 없습니다.");
+            }
         }
     }
 }
