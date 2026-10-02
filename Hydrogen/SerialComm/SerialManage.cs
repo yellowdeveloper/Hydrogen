@@ -154,11 +154,56 @@ namespace Hydrogen.SerialComm {
             }
         }
 
-        private void ProcessReceivedData() {
-            while(received_buffer.Count >= 12) {
-                //Check if Header is OK
-                if (!ValidityCheck()) continue;
+        private void ProcessReceivedData()
+        {
+            // 패킷의 최소 크기는 헤더(4) + 길이(1) + RAW데이터(3) + CRC(1) + 푸터(4) = 13바이트
+            while (received_buffer.Count >= 13)
+            {
+                // 1. 헤더(0x09 0x0D 0x09 0x0D) 시작 위치 찾기
+                int headerIdx = -1;
+                for (int i = 0; i <= received_buffer.Count - 4; i++)
+                {
+                    if (received_buffer[i] == 0x09 && received_buffer[i + 1] == 0x0D && received_buffer[i + 2] == 0x09 && received_buffer[i + 3] == 0x0D)
+                    {
+                        headerIdx = i;
+                        break;
+                    }
+                }
 
+                // 헤더를 못 찾으면 가비지 데이터이므로 삭제 후 대기
+                if (headerIdx == -1)
+                {
+                    received_buffer.Clear();
+                    break;
+                }
+
+                // 헤더 앞의 가비지 데이터 제거
+                if (headerIdx > 0)
+                {
+                    received_buffer.RemoveRange(0, headerIdx);
+                }
+
+                // 길이를 읽을 수 있을 만큼 버퍼가 찼는지 확인
+                if (received_buffer.Count < 5) break;
+
+                int data_length = received_buffer[4];
+                int required_length = 4 + 1 + data_length + 1 + 4; // 헤더(4) + 길이(1) + 데이터길이 + CRC(1) + 푸터(4)
+
+                // 핵심: 패킷 전체가 시리얼 버퍼에 안 들어왔다면 루프를 탈출하고 다음 이벤트를 기다림
+                if (received_buffer.Count < required_length)
+                {
+                    break;
+                }
+
+                // 전체 패킷이 들어왔으므로 검증 시작
+                if (!ValidityCheck(data_length, required_length))
+                {
+                    // 유효하지 않은 패킷(잘못된 헤더)일 경우 1바이트만 지워서 다음 헤더를 찾도록 함
+                    received_buffer.RemoveAt(0);
+                    continue;
+                }
+
+                // --- 여기부터는 유효한 데이터 파싱 (기존 로직 동일) ---
                 string dc = get_digital_count(received_buffer[0], received_buffer[1], received_buffer[2]).ToString();
 
                 GlobalSerialManager.Instance.SetSerialReceivedDataRaw(dc);
@@ -226,66 +271,42 @@ namespace Hydrogen.SerialComm {
             }
         }
 
-        private bool ValidityCheck() {
-            bool header_ok = false;
-            bool footer_ok = false;
-            int data_length = 0;
-            byte crc = 0;
+        private bool ValidityCheck(int data_length, int required_length)
+        {
+            // 1. 푸터 확인 (끝에서 4바이트)
+            if (received_buffer[required_length - 4] != 0x27 ||
+                received_buffer[required_length - 3] != 0x22 ||
+                received_buffer[required_length - 2] != 0x27 ||
+                received_buffer[required_length - 1] != 0x22)
+            {
 
-            if (received_buffer[0] == 0x09 && received_buffer[1] == 0x0D && received_buffer[2] == 0x09 && received_buffer[3] == 0x0D) {
-                received_buffer.RemoveRange(0, 4);
-                GlobalLogManager.Instance.ConsoleLog("OK", "Received Right Header :: 0x09 0x0D 0x09 0x0D Remove From Buffer");
-                GlobalLogManager.Instance.AddLogToFile("DEBUG", "Received Right Header :: 0x09 0x0D 0x09 0x0D Remove From Buffer");
-
-                is_processing = true;
-
-                header_ok =  true;
+                GlobalLogManager.Instance.ConsoleLog("ERROR", "Invalid Footer!");
+                GlobalLogManager.Instance.AddLogToFile("ERROR", "Invalid Footer!");
+                return false;
             }
 
-            if (header_ok) {
-                data_length = received_buffer[0];
-                received_buffer.RemoveRange(0, 1);
+            // 2. CRC 확인 (끝에서 5번째 바이트)
+            byte received_crc = received_buffer[required_length - 5];
+            byte[] data_payload = received_buffer.GetRange(5, data_length).ToArray();
+            byte calculated_crc = CalCRC(data_payload);
 
-                if (received_buffer[data_length + 1] == 0x27 && received_buffer[data_length + 2] == 0x22 && received_buffer[data_length + 3] == 0x27 && received_buffer[data_length + 4] == 0x22) {
-                    received_buffer.RemoveRange(data_length + 1, 4);
-                    GlobalLogManager.Instance.ConsoleLog("OK", "Received Right Footer :: 0x22 0x27 0x22 0x27 Remove From Buffer");
-                    GlobalLogManager.Instance.AddLogToFile("DEBUG", "Received Right Footer :: 0x22 0x27 0x22 0x27 Remove From Buffer");
-
-                    footer_ok = true;
-                }
+            if (received_crc != calculated_crc)
+            {
+                GlobalLogManager.Instance.ConsoleLog("ERROR", $"CRC BAD :: Calc: {calculated_crc:X2}, Recv: {received_crc:X2}");
+                return false;
             }
 
-            if (footer_ok) {
-                crc = CalCRC(received_buffer.GetRange(0, data_length).ToArray());
-                if (crc == received_buffer[data_length])
-                {
-                    GlobalLogManager.Instance.ConsoleLog("OK", $"CRC OK :: {crc:X2}");
-                    received_buffer.RemoveRange(data_length, 1);
+            // 검증 성공! 파싱을 위해 버퍼의 앞뒤 껍데기 제거하고 순수 데이터만 남김
+            received_buffer.RemoveRange(required_length - 5, 5); // 뒤에서부터 CRC(1) + 푸터(4) 제거
+            received_buffer.RemoveRange(0, 5);                   // 앞에서부터 헤더(4) + 길이(1) 제거
 
-                    num_filters = data_length / 5;
+            num_filters = data_length / 5; // RAW 데이터(3바이트)를 제외하고 필터는 5바이트씩 차지하므로 /5 연산 유지
 
-                    return true;
-                }
-                GlobalLogManager.Instance.ConsoleLog("OK", $"CRC BAD :: {crc:X2}, {received_buffer[data_length]:X2}");
-            }
-
-            GlobalLogManager.Instance.ConsoleLog("ERROR", $"Invalid Data (Header: {header_ok}, Footer: {footer_ok} ) :: Contents in Buffer ::");
-            GlobalLogManager.Instance.AddLogToFile("ERROR", $"Invalid Data :: Contents in Buffer ::");
-
-            for (int i = 0; i < received_buffer.Count; i++) {
-                Console.Write($"{received_buffer[i]:X2}  ");
-            }
-
-            Console.Write("Erase Buffer And Process\n");
-            received_buffer.Clear();
-
-            is_processing = false;
-
-            return false;
+            return true;
         }
 
         private string ConvertByteArray(byte[] val) {
-            string result =  (-BitConverter.ToInt32(val, 0)).ToString();
+            string result =  (BitConverter.ToInt32(val, 0)).ToString();
             return result;
         }
 
@@ -312,7 +333,7 @@ namespace Hydrogen.SerialComm {
                   b3;
             dc = dc << 8;
             dc = dc >> 8;
-            return -dc;
+            return dc;
         }
 
         private byte CalCRC(byte[] byte_array)

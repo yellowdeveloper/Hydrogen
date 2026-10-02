@@ -43,6 +43,7 @@ namespace Hydrogen.GlobalManagers
         private string _serial_received_data_saf;
         private string _serial_received_data_lpf;
         private string _serial_received_data_maf;
+        private string _last_filtered;
         private bool _is_connected = false;
         private bool _is_saf_enabled = false;
         private bool _is_lpf_enabled = false;
@@ -57,6 +58,8 @@ namespace Hydrogen.GlobalManagers
         public void SetSerialReceivedDataLPF(string serial_received_data_lpf) { _serial_received_data_lpf = serial_received_data_lpf; }
         public string GetSerialReceivedDataMAF() { return _serial_received_data_maf; }
         public void SetSerialReceivedDataMAF(string serial_received_data_maf) { _serial_received_data_maf = serial_received_data_maf; }
+        public string GetLastFilteredData() { return _last_filtered; }
+        public void SetLastFilteredData(string last_filtered) { _last_filtered = last_filtered; }
         public bool GetIsConnected() { return _is_connected; }
         public void SetIsConnected(bool is_connected) { _is_connected = is_connected; }
         public bool GetIsSafEnabled() { return _is_saf_enabled; }

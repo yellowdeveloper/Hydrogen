@@ -50,6 +50,9 @@ namespace Hydrogen.UserControls
         private void pictureBox2_Click(object sender, EventArgs e) {
             GlobalLogManager.Instance.ConsoleLog("OK", $"chart1.Series.Count: {chart1.Series.Count}");
             chart1.Series.Clear();
+            GlobalUIManager.Instance.SetMaxRaw(0);
+            GlobalUIManager.Instance.SetMinRaw(0);
+            GlobalUIManager.Instance.SetDiffRaw(0);
             AddNewSeriesToChart("Raw");
 
             time = 0;
