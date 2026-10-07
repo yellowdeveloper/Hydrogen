@@ -193,9 +193,7 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Target Name="BuildNativeTool" AfterTargets="Build">
-
     <Exec Command="&quot;$(ProjectDir)Ext\build.bat&quot; $(Configuration)" />
-
   </Target>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

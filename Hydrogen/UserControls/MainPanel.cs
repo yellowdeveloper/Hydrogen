@@ -20,7 +20,7 @@ namespace Hydrogen.UserControls
         decimal time = 0m;
         private bool is_mouse_over;
         private bool is_dragging;
-        private bool showLastFilteredOnly = false;
+        private bool showLastFilteredOnly = true;
 
         private Point lastPos = new Point(0, 0);
 
@@ -464,7 +464,7 @@ namespace Hydrogen.UserControls
             }
         }
 
-        private void ApplyFilteredView(bool enabled, bool hasValue, double lastFiltered)
+        private void ApplyFilteredView(bool enabled, bool hasValue, double lastFiltered, bool appendPoint = true)
         {
             // 기존 시리즈: 데이터와 범례는 유지하고 선만 숨김
             foreach (Series s in chart1.Series)
@@ -504,16 +504,9 @@ namespace Hydrogen.UserControls
             }
 
             filtered.Enabled = enabled;
+            filtered.Color = enabled ? Color.Black : Color.Transparent;
 
-            if (!enabled)
-            {
-                filtered.Color = Color.Transparent;
-            }
-            else
-            {
-                filtered.Color = Color.Black;
-            }
-            if (hasValue)
+            if (appendPoint && hasValue)
             {
                 filtered.Points.AddXY((double)time, lastFiltered);
             }
@@ -624,6 +617,8 @@ namespace Hydrogen.UserControls
                 showLastFilteredOnly = false;
             else
                 showLastFilteredOnly = true;
+
+            ApplyFilteredView(showLastFilteredOnly, false, 0, false);
         }
     }
 }

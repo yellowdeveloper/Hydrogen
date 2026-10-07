@@ -11,6 +11,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Collections.Specialized.BitVector32;
@@ -24,6 +25,7 @@ namespace Hydrogen.UserControls {
 
         private bool is_mouse_over;
         private SerialManage _serial_manage;
+        private bool first_executed = true;
 
         private DataGridViewRow[] _enabled_rows = new DataGridViewRow[6];
         public SidePanel() {
@@ -141,11 +143,40 @@ namespace Hydrogen.UserControls {
             }
         }
 
+        private void ExecuteDataCommand(string cmdName)
+        {
+            for (int i = 0; i < dataGridView2.Rows.Count; i++)
+            {
+                string name = dataGridView2.Rows[i].Cells[0].Value?.ToString();
+
+                if (name == cmdName)
+                {
+                    string cmdStr = dataGridView2.Rows[i].Cells[1].Value?.ToString();
+
+                    if (string.IsNullOrEmpty(cmdStr))
+                        return;
+
+                    CheckCommand(cmdName, cmdStr, i);
+                    return;
+                }
+            }
+        }
+
         private void CheckCommand(string cmd_name, string cmd_str, int row_index) {
             if (cmd_name.StartsWith("Read")) {
                 if (_enabled_rows[0] == null) {
                     dataGridView1.Rows[row_index].Cells[1].Style.BackColor = Color.LightGreen;
                     _enabled_rows[0] = dataGridView1.Rows[row_index];
+
+                    if (first_executed) {
+                        first_executed = false;
+                        Thread.Sleep(5);
+                        ExecuteDataCommand("SAF_8");
+                        Thread.Sleep(5);
+                        ExecuteDataCommand("LPF");
+                        Thread.Sleep(5);
+                        ExecuteDataCommand("MAF_4");
+                    }
                 }
                 else {
                     _enabled_rows[0].Cells[1].Style.BackColor = Color.White;
