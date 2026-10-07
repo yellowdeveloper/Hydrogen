@@ -111,7 +111,7 @@ namespace Hydrogen.UserControls {
                 }
                 catch (Exception ex) {
                     GlobalLogManager.Instance.ConsoleLog("WARN", $"Error while Sending Command :: {ex}");
-                    GlobalLogManager.Instance.AddLogToFile("WARN", $"Error while Sending Command :: {ex}");
+                    //GlobalLogManager.Instance.AddLogToFile("WARN", $"Error while Sending Command :: {ex}");
                 }
             }
         }
@@ -136,7 +136,7 @@ namespace Hydrogen.UserControls {
                 }
                 catch (Exception ex) {
                     GlobalLogManager.Instance.ConsoleLog("WARN", $"Error while Sending Command :: {ex}");
-                    GlobalLogManager.Instance.AddLogToFile("WARN", $"Error while Sending Command :: {ex}");
+                    //GlobalLogManager.Instance.AddLogToFile("WARN", $"Error while Sending Command :: {ex}");
                 }
             }
         }
@@ -179,6 +179,19 @@ namespace Hydrogen.UserControls {
                 }
                 GlobalUIManager.Instance.SetMaxRaw(0);
                 GlobalUIManager.Instance.SetMinRaw(0);
+                GlobalUIManager.Instance.SetDiffRaw(0);
+
+                GlobalUIManager.Instance.SetSAFMaxRaw(0);
+                GlobalUIManager.Instance.SetSAFMinRaw(0);
+                GlobalUIManager.Instance.SetSAFDiffRaw(0);
+
+                GlobalUIManager.Instance.SetLPFMaxRaw(0);
+                GlobalUIManager.Instance.SetLPFMinRaw(0);
+                GlobalUIManager.Instance.SetLPFDiffRaw(0);
+
+                GlobalUIManager.Instance.SetMAFMaxRaw(0);
+                GlobalUIManager.Instance.SetMAFMinRaw(0);
+                GlobalUIManager.Instance.SetMAFDiffRaw(0);
             }
             else if (cmd_name.StartsWith("SAF_")) {
                 if ((_enabled_rows[3] == null)) {
@@ -277,6 +290,13 @@ namespace Hydrogen.UserControls {
 
         private void play_button_Click(object sender, EventArgs e) {
             if (!GlobalUIManager.Instance.GetIsTxtLogging()) {
+                if (GlobalLogManager.Instance.ChekDataLogFile()) {
+                    using (ErrorForm error_form = new ErrorForm("File Already Exists: Please Change Log File Name"))
+                    {
+                        error_form.ShowDialog();
+                    }
+                    return;
+                }
                 play_button.Image = Resources.Stop;
                 rec_state_label.BackColor = Color.IndianRed;
                 rec_state_label.ForeColor = Color.White;

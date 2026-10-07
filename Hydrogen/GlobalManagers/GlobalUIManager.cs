@@ -25,7 +25,17 @@ namespace Hydrogen.GlobalManagers
         private int _max_raw = 0;
         private int _min_raw = 0;
         private int _min_max_diff = 0;
+        private int _max_saf = 0;
+        private int _min_saf = 0;
+        private int _min_max_diff_saf = 0;
+        private int _max_lpf = 0;
+        private int _min_lpf = 0;
+        private int _min_max_diff_lpf = 0;
+        private int _max_maf = 0;
+        private int _min_maf = 0;
+        private int _min_max_diff_maf = 0;
         private int _interval_x_sum = 0;
+        private bool _is_maximized = false;
 
         public string GetDebugStat() { return _debug_stat; }
         public void SetDebugStat(string debug_stat) { _debug_stat = debug_stat; }
@@ -57,8 +67,32 @@ namespace Hydrogen.GlobalManagers
         public int GetMinRaw() { return _min_raw; }
         public void SetMinRaw(int min_raw) { _min_raw = min_raw; }
 
+        public int GetSAFMaxRaw() { return _max_saf; }
+        public void SetSAFMaxRaw(int max_saf) { _max_saf = max_saf; }
+
+        public int GetSAFMinRaw() { return _min_saf; }
+        public void SetSAFMinRaw(int min_saf) { _min_saf = min_saf; }
+
+        public int GetLPFMaxRaw() { return _max_lpf; }
+        public void SetLPFMaxRaw(int max_lpf) { _max_lpf = max_lpf; }
+
+        public int GetLPFMinRaw() { return _min_lpf; }
+        public void SetLPFMinRaw(int min_lpf) { _min_lpf = min_lpf; }
+
+        public int GetMAFMaxRaw() { return _max_maf; }
+        public void SetMAFMaxRaw(int max_maf) { _max_maf = max_maf; }
+
+        public int GetMAFMinRaw() { return _min_maf; }
+        public void SetMAFMinRaw(int min_maf) { _min_maf = min_maf; }
+
         public int GetDiffRaw() { return _min_max_diff; }
         public void SetDiffRaw(int min_max_diff) { _min_max_diff = min_max_diff; }
+        public int GetSAFDiffRaw() { return _min_max_diff_saf; }
+        public void SetSAFDiffRaw(int min_max_diff) { _min_max_diff_saf = min_max_diff; }
+        public int GetLPFDiffRaw() { return _min_max_diff_lpf; }
+        public void SetLPFDiffRaw(int min_max_diff) { _min_max_diff_lpf = min_max_diff; }
+        public int GetMAFDiffRaw() { return _min_max_diff_maf; }
+        public void SetMAFDiffRaw(int min_max_diff) { _min_max_diff_maf = min_max_diff; }
 
         public int GetIntervalXSum() { return _interval_x_sum; }
         public void SetIntervalXSum(int interval_x_sum) { _interval_x_sum = interval_x_sum; }
@@ -68,6 +102,9 @@ namespace Hydrogen.GlobalManagers
 
         public string GetSampleRate() { return _sample_rate; }
         public void SetSampleRate(string sample_rate) { _sample_rate = sample_rate; }
+
+        public bool GetIsMaximized() { return _is_maximized; }
+        public void SetIsMaximized(bool is_maximized) { _is_maximized = is_maximized; }
 
 
         public void DrawRectangle(Color color, TableLayoutCellPaintEventArgs e) {

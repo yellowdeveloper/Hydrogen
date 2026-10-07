@@ -91,7 +91,7 @@ namespace Hydrogen.UserControls {
             }
             catch (Exception ex){
                 GlobalLogManager.Instance.ConsoleLog("ERROR", "Error while saving options.");
-                GlobalLogManager.Instance.AddLogToFile("ERROR", "Error while saving options.");
+                //GlobalLogManager.Instance.AddLogToFile("ERROR", "Error while saving options.");
             }
             //string NowConfig = GlobalConfigManager.Instance.ConvertConfigToString();
             //File.WriteAllText(Path.Combine(GlobalConfigManager.Instance.GetConfigFolderPath(), GlobalConfigManager.Instance.GetConfigFileName()), NowConfig);
@@ -108,7 +108,7 @@ namespace Hydrogen.UserControls {
             }
             catch (Exception ex) {
                 GlobalLogManager.Instance.ConsoleLog("ERROR", "Error while loading options.");
-                GlobalLogManager.Instance.AddLogToFile("ERROR", "Error while loading options.");
+                //GlobalLogManager.Instance.AddLogToFile("ERROR", "Error while loading options.");
             }
         }
 

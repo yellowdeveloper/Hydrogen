@@ -13,8 +13,13 @@ namespace Hydrogen.Forms
 {
     public partial class ErrorForm : Form
     {
-        public ErrorForm() {
+        public ErrorForm(string msg = null) {
             InitializeComponent();
+            if (msg != null)
+            {
+                this.label1.Text = msg;
+                return;
+            }
             this.label1.Text = GlobalUIManager.Instance.GetDebugStat();
         }
 

@@ -104,10 +104,12 @@ namespace Hydrogen {
         private void maximize_button_Click(object sender, EventArgs e) {
             if (this.WindowState == FormWindowState.Normal) {
                 this.WindowState = FormWindowState.Maximized;
+                GlobalUIManager.Instance.SetIsMaximized(true);
             }
 
             else if (this.WindowState == FormWindowState.Maximized) {
                 this.WindowState = FormWindowState.Normal;
+                GlobalUIManager.Instance.SetIsMaximized(false);
             }
         }
 

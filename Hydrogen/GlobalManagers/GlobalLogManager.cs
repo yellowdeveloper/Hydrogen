@@ -116,6 +116,12 @@ namespace Hydrogen.GlobalManagers
                 sw.Write(data_log);
             }
         }
+        public bool ChekDataLogFile()
+        {
+            string log_file_path = Path.Combine(GlobalConfigManager.Instance.GetLogFolderPath(), GlobalConfigManager.Instance.GetNowLogFileName());
+
+            return File.Exists(log_file_path);
+        }
 
         public void OpenDataLogFile() {
             if (fs != null) return;

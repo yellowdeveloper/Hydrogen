@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -53,6 +54,18 @@ namespace Hydrogen.UserControls
             GlobalUIManager.Instance.SetMaxRaw(0);
             GlobalUIManager.Instance.SetMinRaw(0);
             GlobalUIManager.Instance.SetDiffRaw(0);
+
+            GlobalUIManager.Instance.SetSAFMaxRaw(0);
+            GlobalUIManager.Instance.SetSAFMinRaw(0);
+            GlobalUIManager.Instance.SetSAFDiffRaw(0);
+
+            GlobalUIManager.Instance.SetLPFMaxRaw(0);
+            GlobalUIManager.Instance.SetLPFMinRaw(0);
+            GlobalUIManager.Instance.SetLPFDiffRaw(0);
+
+            GlobalUIManager.Instance.SetMAFMaxRaw(0);
+            GlobalUIManager.Instance.SetMAFMinRaw(0);
+            GlobalUIManager.Instance.SetMAFDiffRaw(0);
             AddNewSeriesToChart("Raw");
 
             time = 0;
@@ -195,14 +208,17 @@ namespace Hydrogen.UserControls
                 AddValueToChart(series[i]);
             }
 
-            AddInfoToChartTitle("MAX", GlobalUIManager.Instance.GetMaxRaw().ToString());
-            AddInfoToChartTitle("MIN", GlobalUIManager.Instance.GetMinRaw().ToString());
-            AddInfoToChartTitle("MIN-MAX DIFF", GlobalUIManager.Instance.GetDiffRaw().ToString());
+            AddInfoToChartTitle("MAX (RAW)", GlobalUIManager.Instance.GetMaxRaw().ToString(), 1);
+            AddInfoToChartTitle("MIN (RAW)", GlobalUIManager.Instance.GetMinRaw().ToString(), 1);
+            AddInfoToChartTitle("MIN-MAX DIFF RAW", GlobalUIManager.Instance.GetDiffRaw().ToString(), 0);
+            AddInfoToChartTitle("MIN-MAX DIFF SAF", GlobalUIManager.Instance.GetSAFDiffRaw().ToString(), 0);
+            AddInfoToChartTitle("MIN-MAX DIFF LPF", GlobalUIManager.Instance.GetLPFDiffRaw().ToString(), 0);
+            AddInfoToChartTitle("MIN-MAX DIFF MAF", GlobalUIManager.Instance.GetMAFDiffRaw().ToString(), 0);
 
             UpdateChartAreaX(series[0]);
             if (GlobalUIManager.Instance.GetIsAxisYLocked()) return;
             //UpdateChartAreaY(series[0], value);
-            int avg = CalAverage(value);
+            int avg = CalAverage();
             UpdateChartAreaY(series[0], avg);
         }
 
@@ -246,6 +262,15 @@ namespace Hydrogen.UserControls
             if (x_min < 0) x_min = 0;
             if (x_max < window_size) x_max = window_size;
 
+            foreach (Series s in chart1.Series)
+            {
+                while (s.Points.Count > 0 &&
+                       s.Points[0].XValue < x_min)
+                {
+                    s.Points.RemoveAt(0);
+                }
+            }
+
             chart1.ChartAreas[series].AxisX.Minimum = x_min;
             chart1.ChartAreas[series].AxisX.Maximum = x_max;
         }
@@ -273,34 +298,109 @@ namespace Hydrogen.UserControls
             }
         }
 
-        private int CalAverage(int value) {
-            int sum = GlobalUIManager.Instance.GetIntervalXSum();
-            if (count >= GlobalUIManager.Instance.GetXScale() * 10) { sum = 0; }
-            if (sum == 0) count = 0;
-            sum += value;
-            count++;
-            int avg = sum / count;
-            GlobalUIManager.Instance.SetIntervalXSum(sum);
-            return avg;
+        private int CalAverage()
+        {
+            var points = chart1.Series["Raw"].Points;
+
+            if (points.Count == 0)
+                return 0;
+
+            double sum = 0;
+
+            foreach (DataPoint point in points)
+            {
+                sum += point.YValues[0];
+            }
+
+            return (int)(sum / points.Count);
         }
 
-        private void AddInfoToChartTitle(string name, string value) {
-            string text = $"{name}: {value:N0}";
-            if (chart1.Titles.FindByName(name) == null) { 
-                var title = new System.Windows.Forms.DataVisualization.Charting.Title();
+        private Dictionary<string, string> chartInfo = new Dictionary<string, string>();
 
-                title.Name = name;
-                title.Text = text;
-                title.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Top;
-                title.Alignment = System.Drawing.ContentAlignment.TopCenter;
-                title.ForeColor = Color.Red;
-                title.DockedToChartArea = "Raw";
-                title.DockingOffset = -1;
+        private void AddInfoToChartTitle(string name, string value, int mod)
+        {
+            if (mod == 0)
+            {
+                // 해당 name의 값 저장/갱신
+                chartInfo[name] = $"(± {value:N0})\n";
 
-                chart1.Titles.Add(title);
+                // 모든 mod == 0 값을 공백 없이 연결
+                string text = string.Concat(chartInfo.Values);
+
+                int index = 0;
+
+                foreach (var item in chartInfo)
+                {
+                    string titleName = $"Mod0Info_{item.Key}";
+
+                    Title title;
+
+                    if (chart1.Titles.FindByName(titleName) == null)
+                    {
+                        title = new Title();
+
+                        title.Name = titleName;
+                        title.ForeColor = Color.Red;
+                        title.Alignment = ContentAlignment.TopRight;
+
+                        chart1.Titles.Add(title);
+                    }
+                    else
+                    {
+                        title = chart1.Titles[titleName];
+                    }
+
+                    title.Text = item.Value;
+
+                    if (!GlobalUIManager.Instance.GetIsMaximized())
+                    {
+                        title.Position = new ElementPosition(
+                            76,                 // X
+                            8 + index * 2.2f,   // Y → 여기서 줄 간격 조절
+                            20,
+                            4
+                        );
+                    }
+                    else
+                    {
+                        title.Position = new ElementPosition(
+                            76,                 // X
+                            7 + index * 1.6f,   // Y → 여기서 줄 간격 조절
+                            20,
+                            4
+                        );
+                    }
+                    
+                    index++;
+                }
             }
-            else {
-                chart1.Titles[name].Text = text;
+            else if (mod == 1)
+            {
+                string text = $"{name}: {value:N0}";
+
+                if (chart1.Titles.FindByName(name) == null)
+                {
+                    var title =
+                        new System.Windows.Forms.DataVisualization.Charting.Title();
+
+                    title.Name = name;
+                    title.Text = text;
+
+                    title.ForeColor = Color.Black;
+                    title.Alignment = ContentAlignment.TopCenter;
+
+                    title.Docking =
+                        System.Windows.Forms.DataVisualization.Charting.Docking.Top;
+
+                    title.DockingOffset = -1;
+                    title.DockedToChartArea = "Raw";
+
+                    chart1.Titles.Add(title);
+                }
+                else
+                {
+                    chart1.Titles[name].Text = text;
+                }
             }
         }
 
@@ -350,7 +450,7 @@ namespace Hydrogen.UserControls
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void chart1_MouseDown(object sender, MouseEventArgs e) {
-            is_dragging = true;
+            //is_dragging = true;
             lastPos = e.Location;
             chart1.Cursor = Cursors.Hand;
         }

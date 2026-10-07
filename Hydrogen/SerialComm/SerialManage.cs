@@ -38,11 +38,11 @@ namespace Hydrogen.SerialComm {
                 try {
                     sp.Open();
                     GlobalUIManager.Instance.SetDebugStat($"Opening Port : {GlobalSerialManager.Instance.GetPortName()}");
-                    GlobalLogManager.Instance.AddLogToFile("DEBUG", $"Opening Port : {GlobalSerialManager.Instance.GetPortName()}");
+                    //GlobalLogManager.Instance.AddLogToFile("DEBUG", $"Opening Port : {GlobalSerialManager.Instance.GetPortName()}");
                 }
                 catch (Exception ex) {
                     GlobalUIManager.Instance.SetDebugStat($"Port : {GlobalSerialManager.Instance.GetPortName()} Serial Connnection Error - {ex.Message}");
-                    GlobalLogManager.Instance.AddLogToFile("ERROR", $"Port : {GlobalSerialManager.Instance.GetPortName()} Serial Connnection Error - {ex.Message}");
+                    //GlobalLogManager.Instance.AddLogToFile("ERROR", $"Port : {GlobalSerialManager.Instance.GetPortName()} Serial Connnection Error - {ex.Message}");
                     using (ErrorForm error_form = new ErrorForm()) {
                         error_form.ShowDialog();
                     }
@@ -94,7 +94,7 @@ namespace Hydrogen.SerialComm {
             sp.Write(buffer, 0, 10);
 
             GlobalLogManager.Instance.ConsoleLog("OK", $"Sent Command : 0x{cmd:X2} | 0x{op:X2}");
-            GlobalLogManager.Instance.AddLogToFile("DEBUG", $"Sent Command : 0x{cmd:X2} | 0x{op:X2}");
+            //GlobalLogManager.Instance.AddLogToFile("DEBUG", $"Sent Command : 0x{cmd:X2} | 0x{op:X2}");
         }
 
         private void SerialReceivedDebug(object s, SerialDataReceivedEventArgs e) {
@@ -150,7 +150,7 @@ namespace Hydrogen.SerialComm {
 
             catch (Exception ex) {
                 GlobalLogManager.Instance.ConsoleLog("ERROR", $"Error occured while receiving {ex}");
-                GlobalLogManager.Instance.AddLogToFile("ERROR", $"Error occured while receiving {ex}");
+                //GlobalLogManager.Instance.AddLogToFile("ERROR", $"Error occured while receiving {ex}");
             }
         }
 
@@ -213,6 +213,9 @@ namespace Hydrogen.SerialComm {
                 FilterCheck();
 
                 CalMinMaxDiff(Int32.Parse(dc));
+                CalSAFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataSAF()));
+                CalLPFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataLPF()));
+                CalMAFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataMAF()));
 
                 if (GlobalSerialManager.Instance.GetIsSafEnabled() && Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataSAF()) == 0) return;
 
@@ -281,7 +284,7 @@ namespace Hydrogen.SerialComm {
             {
 
                 GlobalLogManager.Instance.ConsoleLog("ERROR", "Invalid Footer!");
-                GlobalLogManager.Instance.AddLogToFile("ERROR", "Invalid Footer!");
+                //GlobalLogManager.Instance.AddLogToFile("ERROR", "Invalid Footer!");
                 return false;
             }
 
@@ -310,7 +313,58 @@ namespace Hydrogen.SerialComm {
             return result;
         }
 
-        private void CalMinMaxDiff(int val) {
+        private void CalSAFMinMaxDiff(int val) {
+            int max = GlobalUIManager.Instance.GetSAFMaxRaw();
+            int min = GlobalUIManager.Instance.GetSAFMinRaw();
+            int diff = 0;
+
+            if (max == 0) GlobalUIManager.Instance.SetSAFMaxRaw(val);
+            if (min == 0) GlobalUIManager.Instance.SetSAFMinRaw(val);
+
+            if (max < val) GlobalUIManager.Instance.SetSAFMaxRaw(val);
+            if (min > val) GlobalUIManager.Instance.SetSAFMinRaw(val);
+
+            diff = max - min;
+
+            GlobalUIManager.Instance.SetSAFDiffRaw(diff);
+        }
+
+        private void CalLPFMinMaxDiff(int val)
+        {
+            int max = GlobalUIManager.Instance.GetLPFMaxRaw();
+            int min = GlobalUIManager.Instance.GetLPFMinRaw();
+            int diff = 0;
+
+            if (max == 0) GlobalUIManager.Instance.SetLPFMaxRaw(val);
+            if (min == 0) GlobalUIManager.Instance.SetLPFMinRaw(val);
+
+            if (max < val) GlobalUIManager.Instance.SetLPFMaxRaw(val);
+            if (min > val) GlobalUIManager.Instance.SetLPFMinRaw(val);
+
+            diff = max - min;
+
+            GlobalUIManager.Instance.SetLPFDiffRaw(diff);
+        }
+
+        private void CalMAFMinMaxDiff(int val)
+        {
+            int max = GlobalUIManager.Instance.GetMAFMaxRaw();
+            int min = GlobalUIManager.Instance.GetMAFMinRaw();
+            int diff = 0;
+
+            if (max == 0) GlobalUIManager.Instance.SetMAFMaxRaw(val);
+            if (min == 0) GlobalUIManager.Instance.SetMAFMinRaw(val);
+
+            if (max < val) GlobalUIManager.Instance.SetMAFMaxRaw(val);
+            if (min > val) GlobalUIManager.Instance.SetMAFMinRaw(val);
+
+            diff = max - min;
+
+            GlobalUIManager.Instance.SetMAFDiffRaw(diff);
+        }
+
+        private void CalMinMaxDiff(int val)
+        {
             int max = GlobalUIManager.Instance.GetMaxRaw();
             int min = GlobalUIManager.Instance.GetMinRaw();
             int diff = 0;
