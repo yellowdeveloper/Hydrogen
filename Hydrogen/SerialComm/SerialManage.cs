@@ -207,9 +207,10 @@ namespace Hydrogen.SerialComm {
                 string dc = get_digital_count(received_buffer[0], received_buffer[1], received_buffer[2]).ToString();
 
                 GlobalSerialManager.Instance.SetSerialReceivedDataRaw(dc);
+                GlobalSerialManager.Instance.SetLastFilteredData(dc);
                 received_buffer.RemoveRange(0, 3);
                 //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (RAW) :: {GlobalSerialManager.Instance.GetSerialReceivedDataRaw()}");
-
+                
                 FilterCheck();
 
                 CalMinMaxDiff(Int32.Parse(dc));
@@ -230,6 +231,8 @@ namespace Hydrogen.SerialComm {
 
                 string buff = ConvertByteArray(received_buffer.GetRange(0, 4).ToArray());
                 if (Int32.Parse(buff) != 0) GlobalSerialManager.Instance.SetSerialReceivedDataSAF(buff);
+                GlobalSerialManager.Instance.SetLastFilteredData(buff);
+
                 //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (SAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataSAF()}");
                 received_buffer.RemoveRange(0, 4);
                 CalSAFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataSAF()));
@@ -246,7 +249,10 @@ namespace Hydrogen.SerialComm {
                 if (!GlobalSerialManager.Instance.GetIsLpfEnabled()) GlobalSerialManager.Instance.SetIsLpfEnabled(true);
                 received_buffer.RemoveRange(0, 1);
 
-                GlobalSerialManager.Instance.SetSerialReceivedDataLPF(ConvertByteArray(received_buffer.GetRange(0, 4).ToArray()));
+                string buff = ConvertByteArray(received_buffer.GetRange(0, 4).ToArray());
+                GlobalSerialManager.Instance.SetSerialReceivedDataLPF(buff);
+                GlobalSerialManager.Instance.SetLastFilteredData(buff);
+
                 //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (LPF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataLPF()}");
                 received_buffer.RemoveRange(0, 4);
                 CalLPFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataLPF()));
@@ -262,7 +268,10 @@ namespace Hydrogen.SerialComm {
                 if (!GlobalSerialManager.Instance.GetIsMafEnabled()) GlobalSerialManager.Instance.SetIsMafEnabled(true);
                 received_buffer.RemoveRange(0, 1);
 
-                GlobalSerialManager.Instance.SetSerialReceivedDataMAF(ConvertByteArray(received_buffer.GetRange(0, 4).ToArray()));
+                string buff = ConvertByteArray(received_buffer.GetRange(0, 4).ToArray());
+                GlobalSerialManager.Instance.SetSerialReceivedDataMAF(buff);
+                GlobalSerialManager.Instance.SetLastFilteredData(buff);
+
                 //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (MAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataMAF()}");
                 received_buffer.RemoveRange(0, 4);
                 CalMAFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataMAF()));

@@ -20,6 +20,7 @@ namespace Hydrogen.UserControls
         decimal time = 0m;
         private bool is_mouse_over;
         private bool is_dragging;
+        private bool showLastFilteredOnly = false;
 
         private Point lastPos = new Point(0, 0);
 
@@ -28,10 +29,16 @@ namespace Hydrogen.UserControls
 
         private double runningSum = 0;
         private int runningCount = 0;
-        private Queue<double> rawSamples = new Queue<double>();
+
+
+        private const string LastFilteredSeries = "LastFiltered";
+        private readonly Dictionary<string, Color> originalColors = new Dictionary<string, Color>();
 
         public MainPanel() {
             InitializeComponent();
+
+            foreach (Series s in chart1.Series) s.ChartType = SeriesChartType.FastLine;
+
             chart1.ChartAreas["Raw"].AxisX.LabelStyle.Format = "F1";
             chart1.ChartAreas["Raw"].AxisY.LabelStyle.Format = "F1";
 
@@ -53,6 +60,7 @@ namespace Hydrogen.UserControls
         private void pictureBox2_Click(object sender, EventArgs e) {
             GlobalLogManager.Instance.ConsoleLog("OK", $"chart1.Series.Count: {chart1.Series.Count}");
             chart1.Series.Clear();
+            originalColors.Clear();
             GlobalUIManager.Instance.SetMaxRaw(0);
             GlobalUIManager.Instance.SetMinRaw(0);
             GlobalUIManager.Instance.SetDiffRaw(0);
@@ -178,7 +186,7 @@ namespace Hydrogen.UserControls
                 chart1.Series.Add(series_name);
                 chart1.Series[series_name].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
                 chart1.Series[series_name].BorderWidth = 2;
-
+                chart1.Series[series_name].ChartType = SeriesChartType.FastLine;
                 chart1.Series[series_name].LegendText = $"{series_name}: " + "#LAST{N0}";
             }
         }
@@ -205,15 +213,35 @@ namespace Hydrogen.UserControls
             time += 0.1m;
             int value = 0;
 
-            for (int i = 1; i < series.Length; i++) AddNewSeriesToChart(series[i]);
+            // 필요한 원본 시리즈 생성
+            foreach (string name in series)
+                AddNewSeriesToChart(name);
 
-            if (series.Length < chart1.Series.Count) RemoveSeriesFromChart(chart1.Series.Count - series.Length);
+            // LastFiltered는 유지하고, 비활성화된 원본 시리즈만 제거
+            foreach (Series s in chart1.Series.ToArray())
+            {
+                if (s.Name == LastFilteredSeries)
+                    continue;
+
+                if (!series.Contains(s.Name))
+                {
+                    originalColors.Remove(s.Name);
+                    chart1.Series.Remove(s);
+                }
+            }
 
             value = AddValueToChart(series[0]);
             for (int i = 1; i < series.Length; i++) {
                 AddValueToChart(series[i]);
             }
+            string text = GlobalSerialManager.Instance.GetLastFilteredData();
 
+            bool hasValue = double.TryParse(text, out double lastFiltered);
+
+            ApplyFilteredView(showLastFilteredOnly, hasValue, lastFiltered);
+
+            // 기존 만료 포인트 제거 및 X축 갱신
+            UpdateChartAreaX(series[0]);
             AddInfoToChartTitle("MAX (RAW)", GlobalUIManager.Instance.GetMaxRaw().ToString(), 1);
             AddInfoToChartTitle("MIN (RAW)", GlobalUIManager.Instance.GetMinRaw().ToString(), 1);
             AddInfoToChartTitle("MIN-MAX DIFF RAW", GlobalUIManager.Instance.GetDiffRaw().ToString(), 0);
@@ -221,7 +249,6 @@ namespace Hydrogen.UserControls
             AddInfoToChartTitle("MIN-MAX DIFF LPF", GlobalUIManager.Instance.GetLPFDiffRaw().ToString(), 0);
             AddInfoToChartTitle("MIN-MAX DIFF MAF", GlobalUIManager.Instance.GetMAFDiffRaw().ToString(), 0);
 
-            UpdateChartAreaX(series[0]);
             if (GlobalUIManager.Instance.GetIsAxisYLocked()) return;
             //UpdateChartAreaY(series[0], value);
             int avg = GetRunningAverage();
@@ -310,24 +337,6 @@ namespace Hydrogen.UserControls
             catch (Exception ex)
             {
                 GlobalLogManager.Instance.ConsoleLog("ERROR", $"{ex}");
-            }
-        }
-
-        private void AddSampleToRunningAverage(double value)
-        {
-            rawSamples.Enqueue(value);
-            runningSum += value;
-            runningCount++;
-        }
-
-        private void RemoveExpiredSamples(double xMin)
-        {
-            while (rawSamples.Count > 0)
-            {
-                // Queue에는 값만 저장하므로,
-                // 실제로 어떤 값이 window에서 만료되는지 알아야 합니다.
-                // 따라서 이 방식만으로는 X 위치와 값을 연결할 수 없습니다.
-                break;
             }
         }
 
@@ -428,6 +437,61 @@ namespace Hydrogen.UserControls
             }
         }
 
+        private void ApplyFilteredView(bool enabled, bool hasValue, double lastFiltered)
+        {
+            // 기존 시리즈: 데이터와 범례는 유지하고 선만 숨김
+            foreach (Series s in chart1.Series)
+            {
+                if (s.Name == LastFilteredSeries)
+                    continue;
+
+                if (enabled)
+                {
+                    if (!originalColors.ContainsKey(s.Name))
+                        originalColors[s.Name] = s.Color;
+
+                    s.Color = Color.Transparent;
+                }
+                else if (originalColors.TryGetValue(s.Name, out Color color))
+                {
+                    s.Color = color;
+                    originalColors.Remove(s.Name);
+                }
+            }
+
+            // LastFiltered: 범례 없이 그래프만 표시
+            Series filtered = chart1.Series.FindByName(LastFilteredSeries);
+
+            if (filtered == null)
+            {
+                filtered = new Series(LastFilteredSeries)
+                {
+                    ChartArea = "Raw",
+                    ChartType = SeriesChartType.FastLine,
+                    Color = Color.Black,
+                    BorderWidth = 2,
+                    IsVisibleInLegend = false
+                };
+
+                chart1.Series.Add(filtered);
+            }
+
+            filtered.Enabled = enabled;
+
+            if (!enabled)
+            {
+                filtered.Color = Color.Transparent;
+            }
+            else
+            {
+                filtered.Color = Color.Black;
+            }
+            if (hasValue)
+            {
+                filtered.Points.AddXY((double)time, lastFiltered);
+            }
+        }
+
         private void y_scale_lock_check_box_CheckedChanged(object sender, EventArgs e) {
             if (GlobalUIManager.Instance.GetIsAxisYLocked()) {
                 GlobalUIManager.Instance.SetIsAxisYLocked(false);
@@ -525,6 +589,14 @@ namespace Hydrogen.UserControls
         private void tableLayoutPanel1_CellPaint(object sender, TableLayoutCellPaintEventArgs e) {
             //this.tableLayoutPanel1.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
             GlobalUIManager.Instance.DrawRectangle(Color.FromArgb(163, 199, 249), e);
+        }
+
+        private void show_recent_cb_CheckedChanged(object sender, EventArgs e)
+        {
+            if (showLastFilteredOnly)
+                showLastFilteredOnly = false;
+            else
+                showLastFilteredOnly = true;
         }
     }
 }

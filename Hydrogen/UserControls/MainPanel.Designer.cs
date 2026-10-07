@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -42,6 +42,7 @@
             this.x_scale_text_box = new System.Windows.Forms.TextBox();
             this.y_scale_lock_check_box = new System.Windows.Forms.CheckBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.show_recent_cb = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.tableLayoutPanel2.SuspendLayout();
@@ -68,36 +69,36 @@
             // 
             // chart1
             // 
-            chartArea1.AxisX.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea1.AxisX.LogarithmBase = 100D;
-            chartArea1.AxisX.MajorGrid.Enabled = false;
-            chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea1.AxisX.MajorTickMark.Enabled = false;
-            chartArea1.AxisX.MajorTickMark.LineColor = System.Drawing.Color.WhiteSmoke;
-            chartArea1.AxisX.MinorTickMark.Enabled = true;
-            chartArea1.AxisX.MinorTickMark.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea1.AxisX.MinorTickMark.TickMarkStyle = System.Windows.Forms.DataVisualization.Charting.TickMarkStyle.AcrossAxis;
-            chartArea1.AxisY.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea1.AxisY.MajorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash;
-            chartArea1.AxisY.MajorTickMark.LineColor = System.Drawing.Color.Gainsboro;
-            chartArea1.AxisY.MajorTickMark.TickMarkStyle = System.Windows.Forms.DataVisualization.Charting.TickMarkStyle.AcrossAxis;
-            chartArea1.Name = "Raw";
-            this.chart1.ChartAreas.Add(chartArea1);
+            chartArea4.AxisX.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea4.AxisX.LogarithmBase = 100D;
+            chartArea4.AxisX.MajorGrid.Enabled = false;
+            chartArea4.AxisX.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea4.AxisX.MajorTickMark.Enabled = false;
+            chartArea4.AxisX.MajorTickMark.LineColor = System.Drawing.Color.WhiteSmoke;
+            chartArea4.AxisX.MinorTickMark.Enabled = true;
+            chartArea4.AxisX.MinorTickMark.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea4.AxisX.MinorTickMark.TickMarkStyle = System.Windows.Forms.DataVisualization.Charting.TickMarkStyle.AcrossAxis;
+            chartArea4.AxisY.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea4.AxisY.MajorGrid.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea4.AxisY.MajorGrid.LineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash;
+            chartArea4.AxisY.MajorTickMark.LineColor = System.Drawing.Color.Gainsboro;
+            chartArea4.AxisY.MajorTickMark.TickMarkStyle = System.Windows.Forms.DataVisualization.Charting.TickMarkStyle.AcrossAxis;
+            chartArea4.Name = "Raw";
+            this.chart1.ChartAreas.Add(chartArea4);
             this.chart1.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend1.DockedToChartArea = "Raw";
-            legend1.Name = "Legend1";
-            this.chart1.Legends.Add(legend1);
+            legend4.DockedToChartArea = "Raw";
+            legend4.Name = "Legend1";
+            this.chart1.Legends.Add(legend4);
             this.chart1.Location = new System.Drawing.Point(2, 24);
             this.chart1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 2);
             this.chart1.Name = "chart1";
             this.chart1.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.None;
-            series1.BorderWidth = 2;
-            series1.ChartArea = "Raw";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series1.Legend = "Legend1";
-            series1.Name = "Raw";
-            this.chart1.Series.Add(series1);
+            series4.BorderWidth = 2;
+            series4.ChartArea = "Raw";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series4.Legend = "Legend1";
+            series4.Name = "Raw";
+            this.chart1.Series.Add(series4);
             this.chart1.Size = new System.Drawing.Size(1072, 599);
             this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
@@ -107,24 +108,26 @@
             // 
             // tableLayoutPanel2
             // 
-            this.tableLayoutPanel2.ColumnCount = 9;
+            this.tableLayoutPanel2.ColumnCount = 10;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 103F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 105F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 57F));
-            this.tableLayoutPanel2.Controls.Add(this.y_scale_text_box, 7, 0);
+            this.tableLayoutPanel2.Controls.Add(this.y_scale_text_box, 8, 0);
             this.tableLayoutPanel2.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.pictureBox1, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.x_scale_label, 4, 0);
-            this.tableLayoutPanel2.Controls.Add(this.y_scale_label, 6, 0);
-            this.tableLayoutPanel2.Controls.Add(this.x_scale_text_box, 5, 0);
-            this.tableLayoutPanel2.Controls.Add(this.y_scale_lock_check_box, 8, 0);
+            this.tableLayoutPanel2.Controls.Add(this.x_scale_label, 5, 0);
+            this.tableLayoutPanel2.Controls.Add(this.y_scale_label, 7, 0);
+            this.tableLayoutPanel2.Controls.Add(this.x_scale_text_box, 6, 0);
+            this.tableLayoutPanel2.Controls.Add(this.y_scale_lock_check_box, 9, 0);
             this.tableLayoutPanel2.Controls.Add(this.pictureBox2, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.show_recent_cb, 4, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(2, 2);
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 1);
@@ -248,6 +251,17 @@
             this.pictureBox2.MouseHover += new System.EventHandler(this.img_button_MouseHover);
             this.pictureBox2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.img_button_MouseUp);
             // 
+            // show_recent_cb
+            // 
+            this.show_recent_cb.AutoSize = true;
+            this.show_recent_cb.Location = new System.Drawing.Point(713, 3);
+            this.show_recent_cb.Name = "show_recent_cb";
+            this.show_recent_cb.Size = new System.Drawing.Size(99, 14);
+            this.show_recent_cb.TabIndex = 8;
+            this.show_recent_cb.Text = "Show Recent";
+            this.show_recent_cb.UseVisualStyleBackColor = true;
+            this.show_recent_cb.CheckedChanged += new System.EventHandler(this.show_recent_cb_CheckedChanged);
+            // 
             // MainPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -279,5 +293,6 @@
         private System.Windows.Forms.TextBox y_scale_text_box;
         private System.Windows.Forms.CheckBox y_scale_lock_check_box;
         private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.CheckBox show_recent_cb;
     }
 }
