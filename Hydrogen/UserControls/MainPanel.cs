@@ -34,6 +34,8 @@ namespace Hydrogen.UserControls
         private const string LastFilteredSeries = "LastFiltered";
         private readonly Dictionary<string, Color> originalColors = new Dictionary<string, Color>();
 
+        private readonly Dictionary<string, int> filterRevisions = new Dictionary<string, int>();
+
         public MainPanel() {
             InitializeComponent();
 
@@ -177,6 +179,39 @@ namespace Hydrogen.UserControls
             }
         }
 
+        private void UpdateFilterSeries(string name, int id, bool appendPoint)
+        {
+            GlobalSerialManager.Instance.ReadFilterState(
+                id, out bool enabled, out string text, out int revision);
+
+            Series s = chart1.Series.FindByName(name);
+
+            if (!enabled)
+            {
+                if (s != null)
+                    chart1.Series.Remove(s);
+
+                originalColors.Remove(name);
+                filterRevisions.Remove(name);
+                return;
+            }
+
+            AddNewSeriesToChart(name);
+            s = chart1.Series[name];
+
+            // 재활성화 또는 설정 변경 시 이전 그래프 제거
+            if (!filterRevisions.TryGetValue(name, out int previous)
+                || previous != revision)
+            {
+                s.Points.Clear();
+                filterRevisions[name] = revision;
+            }
+
+            // 새 값이 없으면 0이나 이전 값을 그리지 않음
+            if (appendPoint && double.TryParse(text, out double value))
+                s.Points.AddXY((double)time, value);
+        }
+
         /// <summary>
         /// 차트 Series 컨트롤
         /// </summary>
@@ -207,35 +242,27 @@ namespace Hydrogen.UserControls
         /// <summary>
         /// 차트 업데이트 메서드
         /// </summary>
-        public void UpdateChart(string[] series) {
-            if (!GlobalUIManager.Instance.GetIsGraphLogging() || !GlobalSerialManager.Instance.GetIsConnected()) return;
+        public void UpdateChart(string[] series)
+        {
+            bool appendPoint =
+                GlobalUIManager.Instance.GetIsGraphLogging()
+                && GlobalSerialManager.Instance.GetIsConnected();
 
-            time += 0.1m;
-            int value = 0;
+            if (appendPoint)
+                time += 0.1m;
 
-            // 필요한 원본 시리즈 생성
-            foreach (string name in series)
-                AddNewSeriesToChart(name);
+            // 그래프 기록이 정지 중이어도 OFF 요청은 화면에 반영
+            UpdateFilterSeries("SAF", 0, appendPoint);
+            UpdateFilterSeries("LPF", 1, appendPoint);
+            UpdateFilterSeries("MAF", 2, appendPoint);
 
-            // LastFiltered는 유지하고, 비활성화된 원본 시리즈만 제거
-            foreach (Series s in chart1.Series.ToArray())
-            {
-                if (s.Name == LastFilteredSeries)
-                    continue;
+            if (!appendPoint)
+                return;
 
-                if (!series.Contains(s.Name))
-                {
-                    originalColors.Remove(s.Name);
-                    chart1.Series.Remove(s);
-                }
-            }
+            AddNewSeriesToChart("Raw");
+            AddValueToChart("Raw");
 
-            value = AddValueToChart(series[0]);
-            for (int i = 1; i < series.Length; i++) {
-                AddValueToChart(series[i]);
-            }
             string text = GlobalSerialManager.Instance.GetLastFilteredData();
-
             bool hasValue = double.TryParse(text, out double lastFiltered);
 
             ApplyFilteredView(showLastFilteredOnly, hasValue, lastFiltered);

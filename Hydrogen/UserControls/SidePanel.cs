@@ -268,24 +268,27 @@ namespace Hydrogen.UserControls {
             }
         }
 
-        private void FilterOff(int filter_no) {
-            switch (filter_no)
+        private void FilterOff(int filterNo)
+        {
+            if (IsDisposed || Disposing)
+                return;
+
+            if (InvokeRequired)
             {
-                case 0:
-                    _enabled_rows[3].Cells[1].Style.BackColor = Color.White;
-                    _enabled_rows[3] = null;
-                    break;
-                case 1:
-                    _enabled_rows[4].Cells[1].Style.BackColor = Color.White;
-                    _enabled_rows[4] = null;
-                    break;
-                case 2:
-                    _enabled_rows[5].Cells[1].Style.BackColor = Color.White;
-                    _enabled_rows[5] = null;
-                    break;
-                default:
-                    break;
+                BeginInvoke(new Action(() => FilterOff(filterNo)));
+                return;
             }
+
+            int index = filterNo + 3;
+            if (index < 3 || index > 5)
+                return;
+
+            DataGridViewRow row = _enabled_rows[index];
+
+            if (row != null)
+                row.Cells[1].Style.BackColor = Color.White;
+
+            _enabled_rows[index] = null;
         }
 
         private void play_button_Click(object sender, EventArgs e) {

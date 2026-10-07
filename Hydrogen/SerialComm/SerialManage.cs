@@ -20,6 +20,7 @@ namespace Hydrogen.SerialComm {
         private List<byte> received_buffer = new List<byte>();
         private bool is_processing = false;
         private int num_filters = 0;
+        private string last_filtered_data = "";
 
         public int SerialConnect() {
             sp.PortName = GlobalSerialManager.Instance.GetPortName();
@@ -207,80 +208,58 @@ namespace Hydrogen.SerialComm {
                 string dc = get_digital_count(received_buffer[0], received_buffer[1], received_buffer[2]).ToString();
 
                 GlobalSerialManager.Instance.SetSerialReceivedDataRaw(dc);
-                GlobalSerialManager.Instance.SetLastFilteredData(dc);
+                last_filtered_data = dc;
                 received_buffer.RemoveRange(0, 3);
                 //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (RAW) :: {GlobalSerialManager.Instance.GetSerialReceivedDataRaw()}");
-                
-                FilterCheck();
+
+                string lastFiltered = FilterCheck(dc);
+                GlobalSerialManager.Instance.SetLastFilteredData(lastFiltered);
 
                 CalMinMaxDiff(Int32.Parse(dc));
-
-                if (GlobalSerialManager.Instance.GetIsSafEnabled() && Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataSAF()) == 0) return;
 
                 if (GlobalUIManager.Instance.GetIsTxtLogging()) GlobalLogManager.Instance.DataValueLog();
 
                 is_processing = false;
             }
         }
-        private void FilterCheck() {
-            if (num_filters <= 0) return;
+        private string FilterCheck(string rawValue)
+        {
+            string lastFiltered = rawValue;
 
-            if (received_buffer[0] == 0) {
-                if (!GlobalSerialManager.Instance.GetIsSafEnabled()) GlobalSerialManager.Instance.SetIsSafEnabled(true);
-                received_buffer.RemoveRange(0, 1);
-
-                string buff = ConvertByteArray(received_buffer.GetRange(0, 4).ToArray());
-                if (Int32.Parse(buff) != 0) GlobalSerialManager.Instance.SetSerialReceivedDataSAF(buff);
-                GlobalSerialManager.Instance.SetLastFilteredData(buff);
-
-                //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (SAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataSAF()}");
-                received_buffer.RemoveRange(0, 4);
-                CalSAFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataSAF()));
-
-                num_filters--;
-            }
-            else {
-                if (GlobalSerialManager.Instance.GetIsSafEnabled()) GlobalSerialManager.Instance.SetIsSafEnabled(false);
-            }
-
-            if (num_filters <= 0) return;
-            if (received_buffer[0] == 1)
+            while (num_filters > 0)
             {
-                if (!GlobalSerialManager.Instance.GetIsLpfEnabled()) GlobalSerialManager.Instance.SetIsLpfEnabled(true);
-                received_buffer.RemoveRange(0, 1);
+                // 필터 ID 1바이트 + 값 4바이트
+                int id = received_buffer[0];
 
-                string buff = ConvertByteArray(received_buffer.GetRange(0, 4).ToArray());
-                GlobalSerialManager.Instance.SetSerialReceivedDataLPF(buff);
-                GlobalSerialManager.Instance.SetLastFilteredData(buff);
+                string value = ConvertByteArray(
+                    received_buffer.GetRange(1, 4).ToArray());
 
-                //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (LPF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataLPF()}");
-                received_buffer.RemoveRange(0, 4);
-                CalLPFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataLPF()));
-
+                // OFF 필터여도 패킷 데이터는 반드시 소비
+                received_buffer.RemoveRange(0, 5);
                 num_filters--;
-            }
-            else {
-                if (GlobalSerialManager.Instance.GetIsLpfEnabled()) GlobalSerialManager.Instance.SetIsLpfEnabled(false);
+
+                if (!GlobalSerialManager.Instance.PublishFilterData(id, value))
+                    continue;
+
+                lastFiltered = value;
+
+                int count = Int32.Parse(value);
+
+                switch (id)
+                {
+                    case 0:
+                        CalSAFMinMaxDiff(count);
+                        break;
+                    case 1:
+                        CalLPFMinMaxDiff(count);
+                        break;
+                    case 2:
+                        CalMAFMinMaxDiff(count);
+                        break;
+                }
             }
 
-            if (num_filters <= 0) return;
-            if (received_buffer[0] == 2) {
-                if (!GlobalSerialManager.Instance.GetIsMafEnabled()) GlobalSerialManager.Instance.SetIsMafEnabled(true);
-                received_buffer.RemoveRange(0, 1);
-
-                string buff = ConvertByteArray(received_buffer.GetRange(0, 4).ToArray());
-                GlobalSerialManager.Instance.SetSerialReceivedDataMAF(buff);
-                GlobalSerialManager.Instance.SetLastFilteredData(buff);
-
-                //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (MAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataMAF()}");
-                received_buffer.RemoveRange(0, 4);
-                CalMAFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataMAF()));
-
-                num_filters--;
-            }
-            else {
-                if (GlobalSerialManager.Instance.GetIsMafEnabled()) GlobalSerialManager.Instance.SetIsMafEnabled(false);
-            }
+            return lastFiltered;
         }
 
         private bool ValidityCheck(int data_length, int required_length)
