@@ -74,7 +74,7 @@ namespace Hydrogen {
                 main_panel.UpdateChart(series.ToArray());
             }
             catch (Exception ex) {
-                GlobalLogManager.Instance.ConsoleLog("ERROR", $"Error Occured while Updating Chart{ex}");
+                //GlobalLogManager.Instance.ConsoleLog("ERROR", $"Error Occured while Updating Chart{ex}");
             }
         }
 

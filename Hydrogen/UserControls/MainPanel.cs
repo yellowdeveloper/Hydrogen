@@ -26,7 +26,9 @@ namespace Hydrogen.UserControls
         private const int dc_max = 8388608;
         private const int dc_min = -8388608;
 
-        private int count = 0;
+        private double runningSum = 0;
+        private int runningCount = 0;
+        private Queue<double> rawSamples = new Queue<double>();
 
         public MainPanel() {
             InitializeComponent();
@@ -66,6 +68,10 @@ namespace Hydrogen.UserControls
             GlobalUIManager.Instance.SetMAFMaxRaw(0);
             GlobalUIManager.Instance.SetMAFMinRaw(0);
             GlobalUIManager.Instance.SetMAFDiffRaw(0);
+
+            runningSum = 0;
+            runningCount = 0;
+
             AddNewSeriesToChart("Raw");
 
             time = 0;
@@ -218,7 +224,7 @@ namespace Hydrogen.UserControls
             UpdateChartAreaX(series[0]);
             if (GlobalUIManager.Instance.GetIsAxisYLocked()) return;
             //UpdateChartAreaY(series[0], value);
-            int avg = CalAverage();
+            int avg = GetRunningAverage();
             UpdateChartAreaY(series[0], avg);
         }
 
@@ -231,6 +237,9 @@ namespace Hydrogen.UserControls
                 {
                     case "Raw":
                         value = Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataRaw());
+
+                        runningSum += (long)value;
+                        runningCount++;
                         break;
                     case "SAF":
                         if (GlobalSerialManager.Instance.GetSerialReceivedDataRaw() == null) return (int)value;
@@ -247,7 +256,7 @@ namespace Hydrogen.UserControls
                 }
                 
                 chart1.Series[series].Points.AddXY(time, value);
-                GlobalLogManager.Instance.ConsoleLog("OK", $"Added value({series}) :: {value}");
+                //GlobalLogManager.Instance.ConsoleLog("OK", $"Added value({series}) :: {value}");
             }
             return (int)value;
         }
@@ -265,8 +274,14 @@ namespace Hydrogen.UserControls
             foreach (Series s in chart1.Series)
             {
                 while (s.Points.Count > 0 &&
-                       s.Points[0].XValue < x_min)
+           s.Points[0].XValue < x_min)
                 {
+                    if (s.Name == "Raw")
+                    {
+                        runningSum -= (long)s.Points[0].YValues[0];
+                        runningCount--;
+                    }
+
                     s.Points.RemoveAt(0);
                 }
             }
@@ -298,21 +313,30 @@ namespace Hydrogen.UserControls
             }
         }
 
-        private int CalAverage()
+        private void AddSampleToRunningAverage(double value)
         {
-            var points = chart1.Series["Raw"].Points;
+            rawSamples.Enqueue(value);
+            runningSum += value;
+            runningCount++;
+        }
 
-            if (points.Count == 0)
+        private void RemoveExpiredSamples(double xMin)
+        {
+            while (rawSamples.Count > 0)
+            {
+                // Queue에는 값만 저장하므로,
+                // 실제로 어떤 값이 window에서 만료되는지 알아야 합니다.
+                // 따라서 이 방식만으로는 X 위치와 값을 연결할 수 없습니다.
+                break;
+            }
+        }
+
+        private int GetRunningAverage()
+        {
+            if (runningCount <= 0)
                 return 0;
 
-            double sum = 0;
-
-            foreach (DataPoint point in points)
-            {
-                sum += point.YValues[0];
-            }
-
-            return (int)(sum / points.Count);
+            return (int)(runningSum / runningCount);
         }
 
         private Dictionary<string, string> chartInfo = new Dictionary<string, string>();

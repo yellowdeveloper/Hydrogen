@@ -138,13 +138,13 @@ namespace Hydrogen.SerialComm {
                 ProcessReceivedData();
 
                 GlobalLogManager.Instance.SetNowSpent(stopwatch.Elapsed.TotalMilliseconds);
-                GlobalLogManager.Instance.ConsoleLog("COM", $"{GlobalLogManager.Instance.GetAutoStopEnabled()}");
+                //GlobalLogManager.Instance.ConsoleLog("COM", $"{GlobalLogManager.Instance.GetAutoStopEnabled()}");
                 if (GlobalLogManager.Instance.GetCounter() == 0 && GlobalLogManager.Instance.GetAutoStopEnabled()) {
                     GlobalLogManager.Instance.ConsoleLog("COM", $"CONDITION GRANT");
                     GlobalLogManager.Instance.SetCounter(GlobalLogManager.Instance.GetNowSpent() + GlobalLogManager.Instance.GetAutoStopCount()*1000);
                     GlobalLogManager.Instance.ConsoleLog("COM", $"NOWSPENT: {GlobalLogManager.Instance.GetNowSpent()} COUNT: {GlobalLogManager.Instance.GetCounter()}");
                 }
-                GlobalLogManager.Instance.ConsoleLog("COM", $"NOWSPENT: {GlobalLogManager.Instance.GetNowSpent()} COUNT: {GlobalLogManager.Instance.GetCounter()}");
+                //GlobalLogManager.Instance.ConsoleLog("COM", $"NOWSPENT: {GlobalLogManager.Instance.GetNowSpent()} COUNT: {GlobalLogManager.Instance.GetCounter()}");
 
             }
 
@@ -208,14 +208,11 @@ namespace Hydrogen.SerialComm {
 
                 GlobalSerialManager.Instance.SetSerialReceivedDataRaw(dc);
                 received_buffer.RemoveRange(0, 3);
-                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (RAW) :: {GlobalSerialManager.Instance.GetSerialReceivedDataRaw()}");
+                //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (RAW) :: {GlobalSerialManager.Instance.GetSerialReceivedDataRaw()}");
 
                 FilterCheck();
 
                 CalMinMaxDiff(Int32.Parse(dc));
-                CalSAFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataSAF()));
-                CalLPFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataLPF()));
-                CalMAFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataMAF()));
 
                 if (GlobalSerialManager.Instance.GetIsSafEnabled() && Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataSAF()) == 0) return;
 
@@ -233,8 +230,9 @@ namespace Hydrogen.SerialComm {
 
                 string buff = ConvertByteArray(received_buffer.GetRange(0, 4).ToArray());
                 if (Int32.Parse(buff) != 0) GlobalSerialManager.Instance.SetSerialReceivedDataSAF(buff);
-                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (SAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataSAF()}");
+                //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (SAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataSAF()}");
                 received_buffer.RemoveRange(0, 4);
+                CalSAFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataSAF()));
 
                 num_filters--;
             }
@@ -249,8 +247,9 @@ namespace Hydrogen.SerialComm {
                 received_buffer.RemoveRange(0, 1);
 
                 GlobalSerialManager.Instance.SetSerialReceivedDataLPF(ConvertByteArray(received_buffer.GetRange(0, 4).ToArray()));
-                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (LPF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataLPF()}");
+                //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (LPF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataLPF()}");
                 received_buffer.RemoveRange(0, 4);
+                CalLPFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataLPF()));
 
                 num_filters--;
             }
@@ -264,8 +263,9 @@ namespace Hydrogen.SerialComm {
                 received_buffer.RemoveRange(0, 1);
 
                 GlobalSerialManager.Instance.SetSerialReceivedDataMAF(ConvertByteArray(received_buffer.GetRange(0, 4).ToArray()));
-                GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (MAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataMAF()}");
+                //GlobalLogManager.Instance.ConsoleLog("OK", $"Received Data (MAF) :: {GlobalSerialManager.Instance.GetSerialReceivedDataMAF()}");
                 received_buffer.RemoveRange(0, 4);
+                CalMAFMinMaxDiff(Int32.Parse(GlobalSerialManager.Instance.GetSerialReceivedDataMAF()));
 
                 num_filters--;
             }
