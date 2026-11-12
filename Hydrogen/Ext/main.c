@@ -1,44 +1,30 @@
-#define _CRT_SECURE_NO_WARNINGS
+// header includes
+// standard headers
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
-#include <stdlib.h>
+// win api
 #include <windows.h>
 
-#define RESPONSE_TIMEOUT_MS 15000
-static HANDLE serial_handle;
+#define HEADER1 0x09
+#define HEADER2 0x0D
+#define HEADER3 0x09
+#define HEADER4 0x0D
 
-static int serial_write_all(const void* data, size_t length) {
-    const unsigned char* p = data;
-    while (length) {
-        DWORD n = 0, want = length > 4096 ? 4096 : (DWORD)length;
-        if (!WriteFile(serial_handle, p, want, &n, NULL) || !n) {
-            return 0;
-        }
-        p += n;
-        length -= n;
-    }
-    return 1;
-}
+#define FOOTER1 0x27
+#define FOOTER2 0x22
+#define FOOTER3 0x27
+#define FOOTER4 0x22
 
-static int serial_read_exact(void* data, size_t length) {
-    unsigned char* p = data;
-    ULONGLONG deadline_ms = GetTickCount64() + RESPONSE_TIMEOUT_MS;
-    while (length && GetTickCount64() < deadline_ms) {
-        DWORD n = 0, want = length > 4096 ? 4096 : (DWORD)length;
-        if (!ReadFile(serial_handle, p, want, &n, NULL)) {
-            return 0;
-        }
-        p += n;
-        length -= n;
-    }
-    return length == 0;
-}
+// CONSOLE_{BG}_{TXT}
+#define CONSOLE_BLUE_RED       0x00 | 0x0C
+#define CONSOLE_BLUE_GREEN     0x00 | 0x0A
+#define CONSOLE_BLUE_WHITE     0x00 | 0x0F
+#define CONSOLE_BLUE_MAGNETA   0x00 | 0x0D
 
-static int receive_response_line(char* response_text, size_t capacity) {
+static int receive_response_line(char* response_text, size_t capacity, HANDLE serial_handle) {
     size_t n = 0;
     unsigned char c;
-    ULONGLONG deadline_ms = GetTickCount64() + RESPONSE_TIMEOUT_MS;
+    ULONGLONG deadline_ms = GetTickCount64() + 15000;
     while (GetTickCount64() < deadline_ms) {
         DWORD got = 0;
         if (!ReadFile(serial_handle, &c, 1, &got, NULL)) {
@@ -62,9 +48,9 @@ static int receive_response_line(char* response_text, size_t capacity) {
     return 0;
 }
 
-static int expect_response(const char* expected) {
+static int expect_response(const char* expected, HANDLE serial_handle) {
     char response_text[256];
-    if (!receive_response_line(response_text, sizeof(response_text))) {
+    if (!receive_response_line(response_text, sizeof(response_text), serial_handle)) {
         puts("Response timeout/error.");
         return 0;
     }
@@ -75,299 +61,320 @@ static int expect_response(const char* expected) {
     return 1;
 }
 
-static int send_command_line(const char* response_text) {
-    return serial_write_all(response_text, strlen(response_text)) && serial_write_all("\n", 1);
-}
-
-static int read_console_line(const char* prompt, char* response_text, size_t capacity) {
-    fputs(prompt, stdout);
-    fflush(stdout);
-    if (!fgets(response_text, (int)capacity, stdin)) {
-        return 0;
-    }
-    if (!strchr(response_text, '\n') && !feof(stdin)) {
-        int c;
-        while ((c = getchar()) != '\n' && c != EOF) {
-        }
-        puts("Input too long.");
-        return 0;
-    }
-    response_text[strcspn(response_text, "\r\n")] = 0;
-    return 1;
-}
-
-static int parse_response_number(const char* response_text, const char* prefix, uint32_t* result) {
-    size_t n = strlen(prefix);
-    if (strncmp(response_text, prefix, n)) {
-        return 0;
-    }
-    response_text += n;
-    if (!*response_text) {
-        return 0;
-    }
-    uint32_t value = 0;
-    for (; *response_text; ++response_text) {
-        if (*response_text < '0' || *response_text > '9' ||
-            value > (INT32_MAX - (unsigned)(*response_text - '0')) / 10U) {
-            return 0;
-        }
-        value = value * 10U + (unsigned)(*response_text - '0');
-    }
-    *result = value;
-    return 1;
-}
-
-/* 직접 입력한 텍스트와 로컬 파일을 동일한 64바이트 프로토콜로 보냅니다. */
-static int upload_file_or_text(void) {
-    char text[4096], response_text[128];
-    FILE* local_file = NULL;
-    uint32_t total_bytes, sent_bytes = 0;
-
-    /* Board has responded SIZE? and waits indefinitely for user choice. */
-    if (!read_console_line("Text, or p\"C:\\path\\file.txt\": ", text, sizeof(text))) {
-        return send_command_line("CANCEL") && expect_response("CANCELLED");
-    }
-    if (!strncmp(text, "p\"", 2)) {
-        size_t n = strlen(text);
-        if (n < 4 || text[n - 1] != '"') {
-            puts("Invalid quoted path.");
-            return send_command_line("CANCEL") && expect_response("CANCELLED");
-        }
-        text[n - 1] = 0;
-        local_file = fopen(text + 2, "rb");
-        if (!local_file) {
-            perror("fopen");
-            return send_command_line("CANCEL") && expect_response("CANCELLED");
-        }
-        if (_fseeki64(local_file, 0, SEEK_END)) {
-            fclose(local_file);
-            return send_command_line("CANCEL") && expect_response("CANCELLED");
-        }
-        __int64 size = _ftelli64(local_file);
-        if (size < 0 || size > INT32_MAX || _fseeki64(local_file, 0, SEEK_SET)) {
-            puts("Invalid/too large file.");
-            fclose(local_file);
-            return send_command_line("CANCEL") && expect_response("CANCELLED");
-        }
-        total_bytes = (uint32_t)size;
+static int write_serial(HANDLE oonsole_handle, HANDLE serial_handle, char* data, DWORD* dwBytesWrite) {
+    int ret = 0;
+    ret = WriteFile(serial_handle, data, strlen(data), &dwBytesWrite, NULL);
+    if (ret) {
+        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_GREEN);
+        printf("Data \"%.*s\" Successfully sent.\n", (int)(strcspn(data, "\n")), data);
+        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_WHITE);
     }
     else {
-        total_bytes = (uint32_t)strlen(text);
+        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_GREEN);
+        printf("Serial Write Failed Code :: %d", ret);
+        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_WHITE);
     }
-
-    /* 총 길이를 알리고 보드가 준비될 때까지 기다립니다. */
-    snprintf(response_text, sizeof(response_text), "SIZE %lu", (unsigned long)total_bytes);
-    if (!send_command_line(response_text) || !expect_response("READY 64")) {
-        goto fail;
-    }
-
-    /* 마지막 블록은 남은 길이만 전송합니다. */
-    while (sent_bytes < total_bytes) {
-        unsigned char block[64];
-        size_t block_length = total_bytes - sent_bytes;
-        if (block_length > 64) {
-            block_length = 64;
-        }
-        if (local_file) {
-            if (fread(block, 1, block_length, local_file) != block_length) {
-                puts("Local file read failed/changed.");
-                goto fail;
-            }
-        }
-        else {
-            memcpy(block, text + sent_bytes, block_length);
-        }
-        if (!serial_write_all(block, block_length)) {
-            goto fail;
-        }
-        sent_bytes += (uint32_t)block_length;
-        snprintf(response_text, sizeof(response_text), "ACK %lu", (unsigned long)sent_bytes);
-
-        /* 이번 블록의 ACK를 받은 뒤에만 다음 블록으로 진행합니다. */
-        if (!expect_response(response_text)) {
-            goto fail; /* No resend: avoids duplicate bytes after lost ACK. */
-        }
-        printf("\r%lu / %lu bytes", (unsigned long)sent_bytes, (unsigned long)total_bytes);
-        fflush(stdout);
-    }
-
-    /* ACK와 달리 DONE은 최종 저장 완료를 의미합니다. */
-    snprintf(response_text, sizeof(response_text), "DONE %lu", (unsigned long)total_bytes);
-    if (!expect_response(response_text)) {
-        goto fail;
-    }
-    if (local_file) {
-        fclose(local_file);
-    }
-    puts("\nSaved successfully.");
-    return 1;
-
-fail:
-    if (local_file) {
-        fclose(local_file);
-    }
-    puts("\nTransfer stopped. Do not resend in this session. Reset board and reconnect.\n"
-        "If DONE was lost, the new file may already be saved; inspect it after reconnecting.");
-    return 0;
+    return ret;
 }
 
-int main(void) {
-    char port[64], device[80], command[32], name[64], response_text[256];
-    puts("Hydro file editor - 64-byte ACK protocol v1");
-    if (!read_console_line("Port (COM3): ", port, sizeof(port))) {
-        return 1;
+void main() {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    printf("***** Hydro Sensor File Edit Program *****\n");
+
+    char inp[16] = {0,};
+    printf("Enter Port Name:");
+    scanf_s("%s", inp, sizeof(inp));
+
+    int ch;
+    while ((ch = getchar()) != '\n' && ch != EOF) {
     }
-    snprintf(device, sizeof(device), "\\\\.\\%s", port);
-    serial_handle =
-        CreateFileA(device, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-    if (serial_handle == INVALID_HANDLE_VALUE) {
-        printf("Open failed: %lu\n", GetLastError());
-        return 1;
+
+    char *portName = inp;
+    printf("Port name is: %s\n", portName);
+
+    HANDLE hSerial;
+    
+    hSerial = CreateFile(portName, 
+                         GENERIC_READ | GENERIC_WRITE, 
+                         0, 
+                         0, 
+                         OPEN_EXISTING, 
+                         FILE_ATTRIBUTE_NORMAL, 
+                         0);
+
+    if (hSerial == INVALID_HANDLE_VALUE) {
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
+        if (GetLastError() == ERROR_FILE_NOT_FOUND)
+        {
+            printf("Serial port not found!\n");
+        }
+        else
+        {
+            printf("Serial port already in use!\n");
+        }
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        return;
     }
-    DCB serial_config = { 0 };
-    serial_config.DCBlength = sizeof(serial_config);
-    if (!GetCommState(serial_handle, &serial_config)) {
-        goto error;
+    else {
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
+        printf("%s Successfully opened !!\n", portName);
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
     }
-    serial_config.BaudRate = CBR_115200;
-    serial_config.ByteSize = 8;
-    serial_config.StopBits = ONESTOPBIT;
-    serial_config.Parity = NOPARITY;
-    serial_config.fBinary = TRUE;
-    serial_config.fParity = FALSE;
-    serial_config.fOutxCtsFlow = FALSE;
-    serial_config.fOutxDsrFlow = FALSE;
-    serial_config.fDsrSensitivity = FALSE;
-    serial_config.fOutX = FALSE;
-    serial_config.fInX = FALSE;
-    serial_config.fNull = FALSE;
-    serial_config.fErrorChar = FALSE;
-    serial_config.fAbortOnError = FALSE;
-    serial_config.fDtrControl = DTR_CONTROL_DISABLE;
-    serial_config.fRtsControl = RTS_CONTROL_DISABLE;
-    if (!SetCommState(serial_handle, &serial_config)) {
-        goto error;
+
+    DCB dcbSerialParams = { 0 };
+    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
+
+    if (!GetCommState(hSerial, &dcbSerialParams)) {
+        // Error getting COM port state
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
+        printf("Error : Getting COM port state\n");
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        return;
     }
+    else {
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
+        printf("Status successfully loaded from %s !!\n", portName);
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+    }
+
+    dcbSerialParams.BaudRate = CBR_115200;
+    dcbSerialParams.ByteSize = 8;
+    dcbSerialParams.StopBits = ONESTOPBIT;
+    dcbSerialParams.Parity   = NOPARITY;
+
+    if (!SetCommState(hSerial, &dcbSerialParams)) {
+        // Error setting COM port state
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
+        printf("Error : Setting COM port state\n");
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        return;
+    }
+    else {
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
+        printf("Config successfully set to %s !!\n", portName);
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+    }
+
     COMMTIMEOUTS timeouts = { 0 };
     timeouts.ReadIntervalTimeout = MAXDWORD;
-    timeouts.ReadTotalTimeoutConstant = 100;
-    timeouts.WriteTotalTimeoutConstant = 3000;
-    if (!SetCommTimeouts(serial_handle, &timeouts)) {
-        goto error;
+    timeouts.ReadTotalTimeoutConstant = 500;
+    timeouts.ReadTotalTimeoutMultiplier = 0;
+
+    timeouts.WriteTotalTimeoutConstant = 50;
+    timeouts.WriteTotalTimeoutMultiplier = 10;
+
+    if (!SetCommTimeouts(hSerial, &timeouts)) {
+        // Error set timeouts
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
+        printf("Error : Setting timeouts\n");
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        return;
     }
-    PurgeComm(serial_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
-    const unsigned char start_command[] = { 9, 13, 9, 13, 0xCA, 0xFE, 0x27, 0x22, 0x27, 0x22 };
-    if (!serial_write_all(start_command, sizeof(start_command))) {
+    else {
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
+        printf("Timeout successfulley set to %s !!\n", portName);
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+    }
+
+    /* ************************************************************************************************ */
+
+    DWORD dwBytesWrite = 0;
+    byte cmd[10] = {HEADER1, HEADER2, HEADER3, HEADER4, 0xCA, 0xFE, FOOTER1, FOOTER2, FOOTER3, FOOTER4};
+
+    PurgeComm(hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
+
+    if (WriteFile(hSerial, cmd, 10, &dwBytesWrite, NULL)) {
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
+        printf("Start command successfully sent. \n", portName);
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+    }
+
+    Sleep(10);
+
+    DWORD dwBytesRead = 0;
+    int readSize = 4096;
+    unsigned char buff[4096];
+
+    const char marker[] = "EDITOR READY\n";
+    size_t matched_length = 0;
+    ULONGLONG deadline_ms = GetTickCount64() + 15000;
+    while (matched_length < sizeof(marker) - 1 && GetTickCount64() < deadline_ms) {
+        unsigned char c;
+        DWORD n = 0;
+        if (!ReadFile(hSerial, &c, 1, &n, NULL)) {
+            goto error;
+        }
+
+        if (n) {
+            matched_length = c == (unsigned char)marker[matched_length] ? matched_length + 1
+                : (c == 'E' ? 1 : 0);
+        }
+    }
+
+    if (matched_length != sizeof(marker) - 1) {
         goto error;
     }
 
-    /* Before EDITOR READY, ADC binary frames may still be arriving. Scan a marker,
-       rather than interpreting binary data as a line or clearing after the request. */
-    {
-        const char marker[] = "EDITOR READY\n";
-        size_t matched_length = 0;
-        ULONGLONG deadline_ms = GetTickCount64() + RESPONSE_TIMEOUT_MS;
-        while (matched_length < sizeof(marker) - 1 && GetTickCount64() < deadline_ms) {
-            unsigned char c;
-            DWORD n = 0;
-            if (!ReadFile(serial_handle, &c, 1, &n, NULL)) {
-                goto error;
-            }
-            if (n) {
-                matched_length = c == (unsigned char)marker[matched_length] ? matched_length + 1
-                    : (c == 'E' ? 1 : 0);
-            }
-        }
-        if (matched_length != sizeof(marker) - 1) {
-            goto error;
-        }
+    if (ReadFile(hSerial, buff, readSize, &dwBytesRead, NULL)) {
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_MAGNETA);
+        for (DWORD i = 0; i < dwBytesRead; i++)
+        printf("%c", buff[i]);
+        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
     }
-    for (;;) {
-        if (!read_console_line("\nCommand (ls/add/mod/del/seek/ext): ", command, sizeof(command))) {
-            break;
-        }
-        if (strcmp(command, "ls") && strcmp(command, "add") && strcmp(command, "mod") &&
-            strcmp(command, "del") && strcmp(command, "seek") && strcmp(command, "ext")) {
-            puts("Unknown command.");
-            continue;
-        }
-        if (!send_command_line(command)) {
-            goto error;
-        }
-        if (!strcmp(command, "ext")) {
-            if (!expect_response("BYE")) {
-                goto error;
-            }
-            break;
-        }
-        if (!strcmp(command, "ls")) {
-            if (!receive_response_line(response_text, sizeof(response_text))) {
-                goto error;
-            }
-            if (strncmp(response_text, "ERR ", 4) == 0) {
-                puts(response_text);
-                continue;
-            }
-            if (strcmp(response_text, "LIST")) {
-                goto error;
-            }
-            for (;;) {
-                if (!receive_response_line(response_text, sizeof(response_text))) {
-                    goto error;
+
+    int state = 0;
+
+    while(1) {
+        char fs_cmd[32] = {0,};
+        char data[256] = {0, };
+        
+        if (state <= 1) printf("\nEnter Your Command: ");
+
+        if (state == 7) fgets(data, sizeof(data), stdin);
+        else fgets(fs_cmd, sizeof(fs_cmd), stdin);
+
+        if (strcmp("ls\n", fs_cmd) == 0) state = 1;
+        else if (strcmp("add\n", fs_cmd) == 0) state = 2;
+        else if (strcmp("mod\n", fs_cmd) == 0) state = 3;
+        else if (strcmp("del\n", fs_cmd) == 0) state = 4;
+        else if (strcmp("ext\n", fs_cmd) == 0) state = 5;
+        else if (strcmp("seek\n", fs_cmd) == 0) state = 8;
+        else if (state != 6 && state != 7) state = 0;
+
+        if (state == 7) {
+            char len_buf[32];
+
+            if (strncmp(data, "p\"", 2) == 0) {
+                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
+
+                int len = strlen(data);
+
+                if (len >= 3) {
+                    data[len - 2] = '\0';
+                    char* result = data + 2;
+
+                    memmove(data, result, strlen(result) + 1);
                 }
-                if (!strcmp(response_text, "END")) {
-                    break;
+
+                printf("Path %.*s detected.\n", (int)(strcspn(data, "\n")), data);
+
+                FILE* fp;
+                fp = fopen(data, "r");
+
+                if (fp == NULL) {
+                    SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
+                    printf("Cannot open file %.*s \n", (int)(strcspn(data, "\n")), data);
                 }
-                puts(response_text);
-                if (!strncmp(response_text, "ERR ", 4)) {
-                    break;
+                else {
+                    fseek(fp, 0, SEEK_END);
+                    long fileSize = ftell(fp);
+                    rewind(fp);
+
+                    char buffer[64];
+
+                    if (fileSize > 64) {
+                        size_t bytesRead;
+						int packetCount = 0;
+                        while ((bytesRead = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
+                            packetCount++;
+                            if (WriteFile(hSerial, buffer, strlen(buffer), &dwBytesWrite, NULL)) {
+                                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
+                                printf("Data \"%.*s\" Successfully sent.\n", (int)(strcspn(buffer, "\n")), buffer);
+                                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+                            }
+                            Sleep(10);
+                        }
+                    }
+                    else {
+                        fgets(buffer, sizeof(buffer), fp);
+                    }
+
+                    fclose(fp);
+                }
+
+                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+			}
+            else {
+                sprintf_s(len_buf, sizeof(len_buf), "len: %d\n", strlen(data));
+                WriteFile(hSerial, len_buf, strlen(len_buf), &dwBytesWrite, NULL);
+
+                if (expect_response("LEN_OK", hSerial)) {
+                    if (strlen(data) > 64) {
+
+                        char buffer[64];
+                        int packetSent = 0;
+						int dataLeft = strlen(data) - packetSent;
+
+                        while (dataLeft >= packetSent) {
+							int packetSize = (dataLeft >= 64) ? 64 : dataLeft;
+							memcpy(buffer, data + packetSent, packetSize);
+                            write_serial(hConsole, hSerial, buffer, dwBytesWrite);
+
+                            Sleep(10);
+
+                            if (expect_response("ACK_%db", strlen(data)))
+                            {
+                                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
+                                printf("Command \"%.*s\" Successfully sent.\n", (int)(strcspn(fs_cmd, "\n")), fs_cmd);
+                                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+
+                                packetSent += packetSize;
+                                dataLeft -= packetSent;
+                            }
+                            else {
+                                printf("Error occured while transfer");
+                                packetSent = dataLeft + 1;
+                            }
+                        }
+                    }
+                    else {
+                        write_serial(hConsole, hSerial, data, dwBytesWrite);
+                        if (expect_response("ACK_%db", strlen(data)))
+                        {
+                            SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
+                            printf("Command \"%.*s\" Successfully sent.\n", (int)(strcspn(fs_cmd, "\n")), fs_cmd);
+                            SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+                        }
+                    }
                 }
             }
-            continue;
-        }
-        if (!expect_response("NAME")) {
-            goto error;
-        }
-        if (!read_console_line("Board file name: ", name, sizeof(name))) {
-            goto error;
-        }
-        if (!send_command_line(name) ||
-            !receive_response_line(response_text, sizeof(response_text))) {
-            goto error;
-        }
-        if (!strncmp(response_text, "ERR ", 4)) {
-            puts(response_text);
-            continue;
-        }
-        if (!strcmp(command, "mod")) {
-            if (strcmp(response_text, "SIZE?") || !upload_file_or_text()) {
-                goto error;
-            }
-        }
-        else if (!strcmp(command, "seek")) {
-            uint32_t remaining_bytes;
-            if (!parse_response_number(response_text, "DATA ", &remaining_bytes)) {
-                goto error;
-            }
-            while (remaining_bytes) {
-                unsigned char block[64];
-                size_t n = remaining_bytes > 64 ? 64 : remaining_bytes;
-                if (!serial_read_exact(block, n)) {
-                    goto error;
-                }
-                fwrite(block, 1, n, stdout);
-                remaining_bytes -= (uint32_t)n;
-            }
-            puts("");
+
+            state = 0;
         }
         else {
-            puts(response_text);
+            if (WriteFile(hSerial, fs_cmd, strlen(fs_cmd), &dwBytesWrite, NULL)) {
+                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
+                printf("Command \"%.*s\" Successfully sent.\n", (int)(strcspn(fs_cmd, "\n")), fs_cmd);
+                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+            }
         }
+        
+        if (state == 5) {
+            SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
+            printf("Exit Calibration Edit.");
+            SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+            return;
+        }
+
+        Sleep(100);
+
+        if (ReadFile(hSerial, buff, readSize, &dwBytesRead, NULL)) {
+            SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_MAGNETA);
+            for (DWORD i = 0; i < dwBytesRead; i++)
+            printf("%c", buff[i]);
+            SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        }
+
+        if (state == 3) {
+            state = 6;
+            continue;
+        }
+
+        if (state == 6) state++;
     }
-    CloseHandle(serial_handle);
-    return 0;
 error:
     puts("Communication/session failed. Close this program, reset board, then reconnect.");
-    CloseHandle(serial_handle);
+    CloseHandle(hSerial);
     return 1;
 }
