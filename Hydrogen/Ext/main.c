@@ -48,26 +48,51 @@ static int receive_response_line(char* response_text, size_t capacity, HANDLE se
     return 0;
 }
 
-static int expect_response(const char* expected, HANDLE serial_handle) {
+static int expect_response(HANDLE oonsole_handle, HANDLE serial_handle, const char* expected) {
     char response_text[256];
+
     if (!receive_response_line(response_text, sizeof(response_text), serial_handle)) {
+        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_RED);
         puts("Response timeout/error.");
+        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_WHITE);
         return 0;
     }
     if (strcmp(response_text, expected)) {
+        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_RED);
         printf("Expected [%s], received [%s]\n", expected, response_text);
+        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_WHITE);
         return 0;
     }
     return 1;
+}
+
+static int expect_response_format(HANDLE oonsole_handle, HANDLE serial_handle, const char* format, ...) {
+    char expected[256];
+
+    va_list args;
+    va_start(args, format);
+
+    int len = vsnprintf(expected, sizeof(expected), format, args);
+
+    va_end(args);
+
+    if (len < 0 || (size_t)len >= sizeof(expected)) {
+        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_RED);
+        puts("Expected response format error.");
+        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_WHITE);
+        return 0;
+    }
+
+    return expect_response(oonsole_handle, serial_handle, expected);
 }
 
 static int write_serial(HANDLE oonsole_handle, HANDLE serial_handle, char* data, DWORD* dwBytesWrite) {
     int ret = 0;
     ret = WriteFile(serial_handle, data, strlen(data), &dwBytesWrite, NULL);
     if (ret) {
-        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_GREEN);
+        /*SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_GREEN);
         printf("Data \"%.*s\" Successfully sent.\n", (int)(strcspn(data, "\n")), data);
-        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_WHITE);
+        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_WHITE);*/
     }
     else {
         SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_GREEN);
@@ -271,9 +296,9 @@ void main() {
                     long fileSize = ftell(fp);
                     rewind(fp);
 
-                    char buffer[64];
+                    char buffer[10];
 
-                    if (fileSize > 64) {
+                    if (fileSize > 10) {
                         size_t bytesRead;
 						int packetCount = 0;
                         while ((bytesRead = fread(buffer, 1, sizeof(buffer), fp)) > 0) {
@@ -296,31 +321,32 @@ void main() {
                 SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
 			}
             else {
+                data[strlen(data) - 1] = '\0';
+
                 sprintf_s(len_buf, sizeof(len_buf), "len: %d\n", strlen(data));
                 WriteFile(hSerial, len_buf, strlen(len_buf), &dwBytesWrite, NULL);
 
-                if (expect_response("LEN_OK", hSerial)) {
-                    if (strlen(data) > 64) {
-
-                        char buffer[64];
+                if (expect_response(hConsole, hSerial, "LEN_OK")) {
+                    if (strlen(data) > 10) {
+                        char buffer[11];
                         int packetSent = 0;
 						int dataLeft = strlen(data) - packetSent;
 
-                        while (dataLeft >= packetSent) {
-							int packetSize = (dataLeft >= 64) ? 64 : dataLeft;
+                        while (dataLeft) {
+							int packetSize = (dataLeft >= 10) ? 10 : dataLeft;
+                            buffer[packetSize] = '\0';
 							memcpy(buffer, data + packetSent, packetSize);
                             write_serial(hConsole, hSerial, buffer, dwBytesWrite);
 
                             Sleep(10);
-
-                            if (expect_response("ACK_%db", strlen(data)))
+                            if (expect_response_format(hConsole, hSerial, "ACK_%db", packetSize))
                             {
                                 SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
-                                printf("Command \"%.*s\" Successfully sent.\n", (int)(strcspn(fs_cmd, "\n")), fs_cmd);
+                                printf("%d bit Successfully sent.\n", packetSize);
                                 SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
 
                                 packetSent += packetSize;
-                                dataLeft -= packetSent;
+                                dataLeft -= packetSize;
                             }
                             else {
                                 printf("Error occured while transfer");
@@ -330,10 +356,10 @@ void main() {
                     }
                     else {
                         write_serial(hConsole, hSerial, data, dwBytesWrite);
-                        if (expect_response("ACK_%db", strlen(data)))
+                        if (expect_response_format(hConsole, hSerial, "ACK_%db", strlen(data)))
                         {
                             SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
-                            printf("Command \"%.*s\" Successfully sent.\n", (int)(strcspn(fs_cmd, "\n")), fs_cmd);
+                            printf("%d bit Successfully sent.\n", strlen(data));
                             SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
                         }
                     }
