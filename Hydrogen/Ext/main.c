@@ -21,6 +21,21 @@
 #define CONSOLE_BLUE_WHITE     0x00 | 0x0F
 #define CONSOLE_BLUE_MAGNETA   0x00 | 0x0D
 
+static void pt_console_with_color(HANDLE console_handle, WORD color, const char* input, ...) {
+    char text[256];
+
+    va_list args;
+    va_start(args, input);
+
+    int len = vsnprintf(text, sizeof(text), input, args);
+
+    va_end(args);
+
+    SetConsoleTextAttribute(console_handle, color);
+    printf("%s", text);
+    SetConsoleTextAttribute(console_handle, CONSOLE_BLUE_WHITE);
+}
+
 static int receive_response_line(char* response_text, size_t capacity, HANDLE serial_handle) {
     size_t n = 0;
     unsigned char c;
@@ -48,25 +63,21 @@ static int receive_response_line(char* response_text, size_t capacity, HANDLE se
     return 0;
 }
 
-static int expect_response(HANDLE oonsole_handle, HANDLE serial_handle, const char* expected) {
+static int expect_response(HANDLE console_handle, HANDLE serial_handle, const char* expected) {
     char response_text[256];
 
     if (!receive_response_line(response_text, sizeof(response_text), serial_handle)) {
-        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_RED);
-        puts("Response timeout/error.");
-        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_WHITE);
+        pt_console_with_color(console_handle, CONSOLE_BLUE_RED, "Response timeout/error.");
         return 0;
     }
     if (strcmp(response_text, expected)) {
-        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_RED);
-        printf("Expected [%s], received [%s]\n", expected, response_text);
-        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_WHITE);
+        pt_console_with_color(console_handle, CONSOLE_BLUE_RED, "Expected [%s], received [%s]\n", expected, response_text);
         return 0;
     }
     return 1;
 }
 
-static int expect_response_format(HANDLE oonsole_handle, HANDLE serial_handle, const char* format, ...) {
+static int expect_response_format(HANDLE console_handle, HANDLE serial_handle, const char* format, ...) {
     char expected[256];
 
     va_list args;
@@ -77,27 +88,21 @@ static int expect_response_format(HANDLE oonsole_handle, HANDLE serial_handle, c
     va_end(args);
 
     if (len < 0 || (size_t)len >= sizeof(expected)) {
-        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_RED);
-        puts("Expected response format error.");
-        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_WHITE);
+        pt_console_with_color(console_handle, CONSOLE_BLUE_RED, "Expected response format error.");
         return 0;
     }
 
-    return expect_response(oonsole_handle, serial_handle, expected);
+    return expect_response(console_handle, serial_handle, expected);
 }
 
 static int write_serial(HANDLE console_handle, HANDLE serial_handle, char* data, DWORD* dwBytesWrite) {
     int ret = 0;
     ret = WriteFile(serial_handle, data, strlen(data), &dwBytesWrite, NULL);
     if (ret) {
-        /*SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_GREEN);
-        printf("Data \"%.*s\" Successfully sent.\n", (int)(strcspn(data, "\n")), data);
-        SetConsoleTextAttribute(oonsole_handle, CONSOLE_BLUE_WHITE);*/
+        // pt_console_with_color(console_handle, CONSOLE_BLUE_GREEN, "Data \"%.*s\" Successfully sent.\n", (int)(strcspn(data, "\n")), data);
     }
     else {
-        SetConsoleTextAttribute(console_handle, CONSOLE_BLUE_GREEN);
-        printf("Serial Write Failed Code :: %d", ret);
-        SetConsoleTextAttribute(console_handle, CONSOLE_BLUE_WHITE);
+        pt_console_with_color(console_handle, CONSOLE_BLUE_RED, "Serial Write Failed Code :: %d", ret);
     }
     return ret;
 }
@@ -126,7 +131,7 @@ static void pt_progress_bar(HANDLE console_handle, size_t sent, size_t total) {
     float percent = (total > 0) ? (float)sent / total : 1.0;
 	int progress_bar = (int)(percent * bar_size);
 
-    SetConsoleTextAttribute(console_handle, CONSOLE_BLUE_WHITE);
+    SetConsoleTextAttribute(console_handle, CONSOLE_BLUE_GREEN);
     
     printf("\r[");
     for (int i = 0; i < bar_size; i++) {
@@ -142,6 +147,8 @@ static void pt_progress_bar(HANDLE console_handle, size_t sent, size_t total) {
 }
 
 void main() {
+    int ret;
+
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     printf("***** Hydro Sensor File Edit Program *****\n");
@@ -168,22 +175,18 @@ void main() {
                          0);
 
     if (hSerial == INVALID_HANDLE_VALUE) {
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
         if (GetLastError() == ERROR_FILE_NOT_FOUND)
         {
-            printf("Serial port not found!\n");
+            pt_console_with_color(hConsole, CONSOLE_BLUE_RED, "Serial port not found!\n");
         }
         else
         {
-            printf("Serial port already in use!\n");
+            pt_console_with_color(hConsole, CONSOLE_BLUE_RED, "Serial port not found!\n");
         }
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
         return;
     }
     else {
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
-        printf("%s Successfully opened !!\n", portName);
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        pt_console_with_color(hConsole, CONSOLE_BLUE_GREEN, "%s Successfully opened !!\n", portName);
     }
 
     DCB dcbSerialParams = { 0 };
@@ -191,15 +194,11 @@ void main() {
 
     if (!GetCommState(hSerial, &dcbSerialParams)) {
         // Error getting COM port state
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
-        printf("Error : Getting COM port state\n");
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        pt_console_with_color(hConsole, CONSOLE_BLUE_RED, "Error : Getting COM port state\n");
         return;
     }
     else {
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
-        printf("Status successfully loaded from %s !!\n", portName);
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        pt_console_with_color(hConsole, CONSOLE_BLUE_GREEN, "Status successfully loaded from %s !!\n", portName);
     }
 
     dcbSerialParams.BaudRate = CBR_115200;
@@ -209,15 +208,11 @@ void main() {
 
     if (!SetCommState(hSerial, &dcbSerialParams)) {
         // Error setting COM port state
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
-        printf("Error : Setting COM port state\n");
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        pt_console_with_color(hConsole, CONSOLE_BLUE_RED, "Error : Setting COM port state\n");
         return;
     }
     else {
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
-        printf("Config successfully set to %s !!\n", portName);
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        pt_console_with_color(hConsole, CONSOLE_BLUE_GREEN, "Config successfully set to %s !!\n", portName);
     }
 
     COMMTIMEOUTS timeouts = { 0 };
@@ -230,15 +225,11 @@ void main() {
 
     if (!SetCommTimeouts(hSerial, &timeouts)) {
         // Error set timeouts
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
-        printf("Error : Setting timeouts\n");
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        pt_console_with_color(hConsole, CONSOLE_BLUE_RED, "Error : Setting timeouts\n");
         return;
     }
     else {
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
-        printf("Timeout successfulley set to %s !!\n", portName);
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+        pt_console_with_color(hConsole, CONSOLE_BLUE_GREEN, "Timeout successfulley set to %s !!\n", portName);
     }
 
     /* ************************************************************************************************ */
@@ -248,11 +239,7 @@ void main() {
 
     PurgeComm(hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
 
-    if (WriteFile(hSerial, cmd, 10, &dwBytesWrite, NULL)) {
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
-        printf("Start command successfully sent. \n", portName);
-        SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
-    }
+	ret = write_serial(hConsole, hSerial, (char*)cmd, &dwBytesWrite);
 
     Sleep(10);
 
@@ -310,8 +297,6 @@ void main() {
             char len_buf[32];
 
             if (strncmp(data, "p\"", 2) == 0) {
-                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
-
                 int len = strlen(data);
 
                 if (len >= 3) {
@@ -321,14 +306,13 @@ void main() {
                     memmove(data, result, strlen(result) + 1);
                 }
 
-                printf("Path %.*s detected.\n", (int)(strcspn(data, "\n")), data);
+                pt_console_with_color(hConsole, CONSOLE_BLUE_GREEN, "Path %.*s detected.\n", (int)(strcspn(data, "\n")), data);
 
                 FILE* fp;
                 fp = fopen(data, "rb");
 
                 if (fp == NULL) {
-                    SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
-                    printf("Cannot open file %.*s \n", (int)(strcspn(data, "\n")), data);
+                    pt_console_with_color(hConsole, CONSOLE_BLUE_RED, "Cannot open file %.*s \n", (int)(strcspn(data, "\n")), data);
                 }
                 else {
                     fseek(fp, 0, SEEK_END);
@@ -339,7 +323,6 @@ void main() {
                     write_serial(hConsole, hSerial, len_buf, &dwBytesWrite);
 
                     if (expect_response(hConsole, hSerial, "LEN_OK")) {
-                        printf("fileSize: %d\n", fileSize);
                         char buffer[11];
                         int packetSent = 0;
                         int dataLeft = fileSize - packetSent;
@@ -363,7 +346,7 @@ void main() {
 									pt_progress_bar(hConsole, packetSent, fileSize);
                                 }
                                 else {
-                                    printf("Error occured while transfer");
+                                    pt_console_with_color(hConsole, CONSOLE_BLUE_RED, "Error occured while transfer");
                                     break;
                                 }
                             }
@@ -375,8 +358,6 @@ void main() {
 
                     fclose(fp);
                 }
-
-                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
 			}
             else {
                 data[strlen(data) - 1] = '\0';
@@ -414,9 +395,7 @@ void main() {
                         write_serial(hConsole, hSerial, data, &dwBytesWrite);
                         if (expect_response_format(hConsole, hSerial, "ACK_%db", strlen(data)))
                         {
-                            SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
-                            printf("%d bit Successfully sent.\n", strlen(data));
-                            SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+                            pt_console_with_color(hConsole, CONSOLE_BLUE_GREEN, "%d bit Successfully sent.\n", strlen(data));
                         }
                     }
                 }
@@ -425,17 +404,11 @@ void main() {
             state = 0;
         }
         else {
-            if (WriteFile(hSerial, fs_cmd, strlen(fs_cmd), &dwBytesWrite, NULL)) {
-                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_GREEN);
-                printf("Command \"%.*s\" Successfully sent.\n", (int)(strcspn(fs_cmd, "\n")), fs_cmd);
-                SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
-            }
+			write_serial(hConsole, hSerial, fs_cmd, &dwBytesWrite);
         }
         
         if (state == 5) {
-            SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_RED);
-            printf("Exit Calibration Edit.");
-            SetConsoleTextAttribute(hConsole, CONSOLE_BLUE_WHITE);
+            pt_console_with_color(hConsole, CONSOLE_BLUE_RED, "Exit Calibration Edit.");
             return;
         }
 
@@ -457,6 +430,7 @@ void main() {
     }
 error:
     puts("Communication/session failed. Close this program, reset board, then reconnect.");
+    Sleep(2000);
     CloseHandle(hSerial);
     return 1;
 }
